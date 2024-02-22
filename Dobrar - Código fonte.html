@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Cassino</title>
+    </head>
+    <body>
+
+        <link href="../Fonts/SofiaPro/SofiaPro.css" type="text/css" rel="stylesheet">
+        <link href="../solid.1.5.css" type="text/css" rel="stylesheet">
+        <link href="../solid.double.1.6.css" type="text/css" rel="stylesheet">
+        <link href="dobrar.1.4.css" type="text/css" rel="stylesheet">
+        <link href="dobrar.blaze.1.4.css" type="text/css" rel="stylesheet">
+    
+        <script src="../solid.1.5.js"></script>
+        <script src="../solid.double.1.6.js"></script>
+        <script src="dobrar.1.4.js"></script>
+    
+        <script>
+            try {
+    
+                var cssFile = new URLSearchParams(window.location.search).get('css');
+                if (cssFile) {
+                    var linkElement = document.createElement('link');
+                    linkElement.rel = 'stylesheet';
+                    linkElement.href = cssFile;
+                    document.body.appendChild(linkElement);
+                }
+    
+            } catch (ex) {
+                Error(ex);
+            }
+        </script>
+    
+        <script>
+    
+            Solid.GetToken(function (token) {
+    
+                var d = new Dobrar({
+                    cdn: "./",
+                    debug: false,
+                    url: "wss://cassino.mobi:5903/Game",
+                    token: token
+                });
+    
+                d.start();
+    
+            });
+    
+        </script>
+        <solid>
+            <header class="context">
+                <div class="logo"></div>
+                <div class="wf c"></div>
+                <div class="player_balance">R$ 390.28</div>
+                <div class="options" style="position: relative" onclick="Solid.Lobby.HTML.Modal.Show('#modal_options')">
+                    <modal id="modal_options" class="below">
+                        <header>
+                            "Configurações"
+                            <div class="x" onclick="Solid.HTML.Modal.CloseAll(); event.stopPropagation()">✖</div>
+                        </header>
+                        <main>
+                            <div class="context flex">
+                                <div class="icon icon_music"></div>
+                                <div class="wf">Música</div>
+                                <switch class="music" onswitch="Interface.Music(this.switched)"></switch>
+                            </div>
+                            <div class="context flex">
+                                <div class="icon icon_sound"></div>
+                                <div class="wf">Efeitos sonoros</div>
+                                <switch class="sound" onswitch="Interface.Sound(this.switched)"></switch>
+                            </div>
+                        </main>
+                        <footer>
+                            <div class="button light" onclick="Solid.Lobby.HTML.Modal.CloseAll(); event.stopPropagation()">Salvar configurações</div>
+                        </footer>
+                    </modal>
+                </div>
+            </header>
+            <main>
+                <board class="form">
+                    <betting>
+                        <div class="flex-vertical w gap">
+                            <div class="stroke w">
+                                <selector class="w">
+                                    <item onclick="Interface.Auto.Enabled = false" class="sel_normal sel">Normal</item>
+                                    <item onclick="Interface.Auto.Enabled = true" class="sel_auto">Auto</item>
+                                </selector>
+                            </div>
+                            <div class="flex w gap">
+                                <div class="inpwrapper wf">
+                                    <div class="wf">
+                                        <input class="value w inp_value" size="3" required="">
+                                        <div class="label">Quantia</div>
+                                    </div>
+                                    <div style="font-size: 150%">R$</div>
+                                </div>
+                                <a class="button" onclick="Interface.IncValue('x0.5')" style="flex-basis: 30px">½</a>
+                                <a class="button" onclick="Interface.IncValue('x2')" style="flex-basis: 30px">2x</a>
+                            </div>
+                            <div>Selecionar cor</div>
+                            <div class="flex w gap" style="justify-content: center">
+                                <div class="button but_meta red wf" data-meta="R" onclick="Interface.SetMeta('R')">x2</div>
+                                <div class="button but_meta white wf" data-meta="W" onclick="Interface.SetMeta('W')">x14</div>
+                                <div class="button but_meta black wf" data-meta="B" onclick="Interface.SetMeta('B')">x2</div>
+                            </div>
+                            <div class="flex-vertical gap">
+                                <div class="button red but_bet disabled" onclick="Interface.Bet(this)">Começar o jogo</div>
+                            </div>
+                            <div class="flex w gap container_auto" style="display: none">
+                                <div class="inpwrapper wf">
+                                    <div class="wf">
+                                        <input class="value w inp_auto" size="3" required="">
+                                        <div class="label">Total Apostas</div>
+                                    </div>
+                                    <div style="font-size: 150%">∞</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="wf" style="padding: 0px"></div>
+                        <extra>
+                            <a class="button text" style="background-image: url('res/shield.svg')" title="Este jogo é Provably Fair" onclick="Interface.Hot.ShowCurrent()">Provably Fair</a>
+                            <div class="wf"></div>
+                            <a class="button " style="background-image: url('res/share.svg')" title="Compartilhar" onclick="undefined"></a>
+                            <a class="button " style="background-image: url('res/info.svg')" title="Informações sobre o jogo" onclick="undefined"></a>
+                            <a class="button " style="background-image: url('res/soundon.svg')" title="Som" onclick="undefined"></a>
+                            <a class="button " style="background-image: url('res/history.svg')" title="Histórico" onclick="Interface.ToggleHistory()"></a>
+                            <a class="button " style="background-image: url('res/stats2.svg')" title="Estatísticas" onclick="Interface.ToggleStats()"></a>
+                        </extra>
+                    </betting>
+                    <screen>
+                        <timer>
+                            <div class="message" style="">Double Girou 2!</div>
+                            <div class="progress-bar" style="display: none;">
+                                <div class="slider">
+                                    <div class="slide" style="transition: transform 10s linear 0s; transform: translateX(-100%);"></div>
+                                    <div class="text">Girando Em 0:00</div>
+                                </div>
+                            </div>
+                        </timer>
+                        <display>
+                            <div class="container flex" style="transform: translateX(-9920.5px); transition: transform 0.5s ease-out 0s;">
+                                <div data-number="1" class="item bordado run0 red">
+                                    <span>1</span>
+                                </div>
+                                <div data-number="14" class="item bordado run0 black">
+                                    <span>14</span>
+                                </div>
+                                <div data-number="2" class="item bordado run0 red">
+                                    <span>2</span>
+                                </div>
+                                <div data-number="13" class="item bordado run0 black">
+                                    <span>13</span>
+                                </div>
+                                <div data-number="3" class="item bordado run0 red">
+                                    <span>3</span>
+                                </div>
+                                <div data-number="12" class="item bordado run0 black">
+                                    <span>12</span>
+                                </div>
+                                <div data-number="4" class="item bordado run0 red">
+                                    <span>4</span>
+                                </div>
+                                <div data-number="0" class="item bordado run0 white">
+                                    <span>0</span>
+                                </div>
+                                <div data-number="11" class="item bordado run0 black">
+                                    <span>11</span>
+                                </div>
+                                <div data-number="5" class="item bordado run0 red">
+                                    <span>5</span>
+                                </div>
+                                <div data-number="10" class="item bordado run0 black">
+                                    <span>10</span>
+                                </div>
+                                <div data-number="6" class="item bordado run0 red">
+                                    <span>6</span>
+                                </div>
+                                <div data-number="9" class="item bordado run0 black">
+                                    <span>9</span>
+                                </div>
+                                <div data-number="7" class="item bordado run0 red">
+                                    <span>7</span>
+                                </div>
+                                <div data-number="8" class="item bordado run0 black">
+                                    <span>8</span>
+                                </div>
+                                <div data-number="1" class="item bordado run1 red">
+                                    <span>1</span>
+                                </div>
+                                <div data-number="14" class="item bordado run1 black">
+                                    <span>14</span>
+                                </div>
+                                <div data-number="2" class="item bordado run1 red">
+                                    <span>2</span>
+                                </div>
+                                <div data-number="13" class="item bordado run1 black">
+                                    <span>13</span>
+                                </div>
+                                <div data-number="3" class="item bordado run1 red">
+                                    <span>3</span>
+                                </div>
+                                <div data-number="12" class="item bordado run1 black">
+                                    <span>12</span>
+                                </div>
+                                <div data-number="4" class="item bordado run1 red">
+                                    <span>4</span>
+                                </div>
+                                <div data-number="0" class="item bordado run1 white">
+                                    <span>0</span>
+                                </div>
+                                <div data-number="11" class="item bordado run1 black">
+                                    <span>11</span>
+                                </div>
+                                <div data-number="5" class="item bordado run1 red">
+                                    <span>5</span>
+                                </div>
+                                <div data-number="10" class="item bordado run1 black">
+                                    <span>10</span>
+                                </div>
+                                <div data-number="6" class="item bordado run1 red">
+                                    <span>6</span>
+                                </div>
+                                <div data-number="9" class="item bordado run1 black">
+                                    <span>9</span>
+                                </div>
+                                <div data-number="7" class="item bordado run1 red">
+                                    <span>7</span>
+                                </div>
+                                <div data-number="8" class="item bordado run1 black">
+                                    <span>8</span>
+                                </div>
+                                <div data-number="1" class="item bordado run2 red">
+                                    <span>1</span>
+                                </div>
+                                <div data-number="14" class="item bordado run2 black">
+                                    <span>14</span>
+                                </div>
+                                <div data-number="2" class="item bordado run2 red">
+                                    <span>2</span>
+                                </div>
+                                <div data-number="13" class="item bordado run2 black">
+                                    <span>13</span>
+                                </div>
+                                <div data-number="3" class="item bordado run2 red">
+                                    <span>3</span>
+                                </div>
+                                <div data-number="12" class="item bordado run2 black">
+                                    <span>12</span>
+                                </div>
+                                <div data-number="4" class="item bordado run2 red">
+                                    <span>4</span>
+                                </div>
+                                <div data-number="0" class="item bordado run2 white">
+                                    <span>0</span>
+                                </div>
+                                <div data-number="11" class="item bordado run2 black">
+                                    <span>11</span>
+                                </div>
+                                <div data-number="5" class="item bordado run2 red">
+                                    <span>5</span>
+                                </div>
+                                <div data-number="10" class="item bordado run2 black">
+                                    <span>10</span>
+                                </div>
+                                <div data-number="6" class="item bordado run2 red">
+                                    <span>6</span>
+                                </div>
+                                <div data-number="9" class="item bordado run2 black">
+                                    <span>9</span>
+                                </div>
+                                <div data-number="7" class="item bordado run2 red">
+                                    <span>7</span>
+                                </div>
+                                <div data-number="8" class="item bordado run2 black">
+                                    <span>8</span>
+                                </div>
+                                <div data-number="1" class="item bordado run3 red">
+                                    <span>1</span>
+                                </div>
+                                <div data-number="14" class="item bordado run3 black">
+                                    <span>14</span>
+                                </div>
+                                <div data-number="2" class="item bordado run3 red">
+                                    <span>2</span>
+                                </div>
+                                <div data-number="13" class="item bordado run3 black">
+                                    <span>13</span>
+                                </div>
+                                <div data-number="3" class="item bordado run3 red">
+                                    <span>3</span>
+                                </div>
+                                <div data-number="12" class="item bordado run3 black">
+                                    <span>12</span>
+                                </div>
+                                <div data-number="4" class="item bordado run3 red">
+                                    <span>4</span>
+                                </div>
+                                <div data-number="0" class="item bordado run3 white">
+                                    <span>0</span>
+                                </div>
+                                <div data-number="11" class="item bordado run3 black">
+                                    <span>11</span>
+                                </div>
+                                <div data-number="5" class="item bordado run3 red">
+                                    <span>5</span>
+                                </div>
+                                <div data-number="10" class="item bordado run3 black">
+                                    <span>10</span>
+                                </div>
+                                <div data-number="6" class="item bordado run3 red">
+                                    <span>6</span>
+                                </div>
+                                <div data-number="9" class="item bordado run3 black">
+                                    <span>9</span>
+                                </div>
+                                <div data-number="7" class="item bordado run3 red">
+                                    <span>7</span>
+                                </div>
+                                <div data-number="8" class="item bordado run3 black">
+                                    <span>8</span>
+                                </div>
+                                <div data-number="1" class="item bordado run4 red">
+                                    <span>1</span>
+                                </div>
+                                <div data-number="14" class="item bordado run4 black">
+                                    <span>14</span>
+                                </div>
+                                <div data-number="2" class="item bordado run4 red">
+                                    <span>2</span>
+                                </div>
+                                <div data-number="13" class="item bordado run4 black">
+                                    <span>13</span>
+                                </div>
+                                <div data-number="3" class="item bordado run4 red">
+                                    <span>3</span>
+                                </div>
+                                <div data-number="12" class="item bordado run4 black">
+                                    <span>12</span>
+                                </div>
+                                <div data-number="4" class="item bordado run4 red">
+                                    <span>4</span>
+                                </div>
+                                <div data-number="0" class="item bordado run4 white">
+                                    <span>0</span>
+                                </div>
+                                <div data-number="11" class="item bordado run4 black">
+                                    <span>11</span>
+                                </div>
+                                <div data-number="5" class="item bordado run4 red">
+                                    <span>5</span>
+                                </div>
+                                <div data-number="10" class="item bordado run4 black">
+                                    <span>10</span>
+                                </div>
+                                <div data-number="6" class="item bordado run4 red">
+                                    <span>6</span>
+                                </div>
+                                <div data-number="9" class="item bordado run4 black">
+                                    <span>9</span>
+                                </div>
+                                <div data-number="7" class="item bordado run4 red">
+                                    <span>7</span>
+                                </div>
+                                <div data-number="8" class="item bordado run4 black">
+                                    <span>8</span>
+                                </div>
+                                <div data-number="1" class="item bordado run5 red">
+                                    <span>1</span>
+                                </div>
+                                <div data-number="14" class="item bordado run5 black">
+                                    <span>14</span>
+                                </div>
+                                <div data-number="2" class="item bordado run5 red">
+                                    <span>2</span>
+                                </div>
+                                <div data-number="13" class="item bordado run5 black">
+                                    <span>13</span>
+                                </div>
+                                <div data-number="3" class="item bordado run5 red">
+                                    <span>3</span>
+                                </div>
+                                <div data-number="12" class="item bordado run5 black">
+                                    <span>12</span>
+                                </div>
+                                <div data-number="4" class="item bordado run5 red">
+                                    <span>4</span>
+                                </div>
+                                <div data-number="0" class="item bordado run5 white">
+                                    <span>0</span>
+                                </div>
+                                <div data-number="11" class="item bordado run5 black">
+                                    <span>11</span>
+                                </div>
+                                <div data-number="5" class="item bordado run5 red">
+                                    <span>5</span>
+                                </div>
+                                <div data-number="10" class="item bordado run5 black">
+                                    <span>10</span>
+                                </div>
+                                <div data-number="6" class="item bordado run5 red">
+                                    <span>6</span>
+                                </div>
+                                <div data-number="9" class="item bordado run5 black">
+                                    <span>9</span>
+                                </div>
+                                <div data-number="7" class="item bordado run5 red">
+                                    <span>7</span>
+                                </div>
+                                <div data-number="8" class="item bordado run5 black">
+                                    <span>8</span>
+                                </div>
+                                <div data-number="1" class="item bordado run6 red">
+                                    <span>1</span>
+                                </div>
+                                <div data-number="14" class="item bordado run6 black">
+                                    <span>14</span>
+                                </div>
+                                <div data-number="2" class="item bordado run6 red">
+                                    <span>2</span>
+                                </div>
+                                <div data-number="13" class="item bordado run6 black">
+                                    <span>13</span>
+                                </div>
+                                <div data-number="3" class="item bordado run6 red">
+                                    <span>3</span>
+                                </div>
+                                <div data-number="12" class="item bordado run6 black">
+                                    <span>12</span>
+                                </div>
+                                <div data-number="4" class="item bordado run6 red">
+                                    <span>4</span>
+                                </div>
+                                <div data-number="0" class="item bordado run6 white">
+                                    <span>0</span>
+                                </div>
+                                <div data-number="11" class="item bordado run6 black">
+                                    <span>11</span>
+                                </div>
+                                <div data-number="5" class="item bordado run6 red">
+                                    <span>5</span>
+                                </div>
+                                <div data-number="10" class="item bordado run6 black">
+                                    <span>10</span>
+                                </div>
+                                <div data-number="6" class="item bordado run6 red">
+                                    <span>6</span>
+                                </div>
+                                <div data-number="9" class="item bordado run6 black">
+                                    <span>9</span>
+                                </div>
+                                <div data-number="7" class="item bordado run6 red">
+                                    <span>7</span>
+                                </div>
+                                <div data-number="8" class="item bordado run6 black">
+                                    <span>8</span>
+                                </div>
+                                <div data-number="1" class="item bordado run7 red">
+                                    <span>1</span>
+                                </div>
+                                <div data-number="14" class="item bordado run7 black">
+                                    <span>14</span>
+                                </div>
+                                <div data-number="2" class="item bordado run7 red">
+                                    <span>2</span>
+                                </div>
+                                <div data-number="13" class="item bordado run7 black">
+                                    <span>13</span>
+                                </div>
+                                <div data-number="3" class="item bordado run7 red">
+                                    <span>3</span>
+                                </div>
+                                <div data-number="12" class="item bordado run7 black">
+                                    <span>12</span>
+                                </div>
+                                <div data-number="4" class="item bordado run7 red">
+                                    <span>4</span>
+                                </div>
+                                <div data-number="0" class="item bordado run7 white">
+                                    <span>0</span>
+                                </div>
+                                <div data-number="11" class="item bordado run7 black">
+                                    <span>11</span>
+                                </div>
+                                <div data-number="5" class="item bordado run7 red">
+                                    <span>5</span>
+                                </div>
+                                <div data-number="10" class="item bordado run7 black">
+                                    <span>10</span>
+                                </div>
+                                <div data-number="6" class="item bordado run7 red">
+                                    <span>6</span>
+                                </div>
+                                <div data-number="9" class="item bordado run7 black">
+                                    <span>9</span>
+                                </div>
+                                <div data-number="7" class="item bordado run7 red">
+                                    <span>7</span>
+                                </div>
+                                <div data-number="8" class="item bordado run7 black">
+                                    <span>8</span>
+                                </div>
+                                <div data-number="1" class="item bordado run8 red">
+                                    <span>1</span>
+                                </div>
+                                <div data-number="14" class="item bordado run8 black">
+                                    <span>14</span>
+                                </div>
+                                <div data-number="2" class="item bordado run8 red">
+                                    <span>2</span>
+                                </div>
+                                <div data-number="13" class="item bordado run8 black">
+                                    <span>13</span>
+                                </div>
+                                <div data-number="3" class="item bordado run8 red">
+                                    <span>3</span>
+                                </div>
+                                <div data-number="12" class="item bordado run8 black">
+                                    <span>12</span>
+                                </div>
+                                <div data-number="4" class="item bordado run8 red">
+                                    <span>4</span>
+                                </div>
+                                <div data-number="0" class="item bordado run8 white">
+                                    <span>0</span>
+                                </div>
+                                <div data-number="11" class="item bordado run8 black">
+                                    <span>11</span>
+                                </div>
+                                <div data-number="5" class="item bordado run8 red">
+                                    <span>5</span>
+                                </div>
+                                <div data-number="10" class="item bordado run8 black">
+                                    <span>10</span>
+                                </div>
+                                <div data-number="6" class="item bordado run8 red">
+                                    <span>6</span>
+                                </div>
+                                <div data-number="9" class="item bordado run8 black">
+                                    <span>9</span>
+                                </div>
+                                <div data-number="7" class="item bordado run8 red">
+                                    <span>7</span>
+                                </div>
+                                <div data-number="8" class="item bordado run8 black">
+                                    <span>8</span>
+                                </div>
+                                <div data-number="1" class="item bordado run9 red">
+                                    <span>1</span>
+                                </div>
+                                <div data-number="14" class="item bordado run9 black">
+                                    <span>14</span>
+                                </div>
+                                <div data-number="2" class="item bordado run9 red">
+                                    <span>2</span>
+                                </div>
+                                <div data-number="13" class="item bordado run9 black">
+                                    <span>13</span>
+                                </div>
+                                <div data-number="3" class="item bordado run9 red">
+                                    <span>3</span>
+                                </div>
+                                <div data-number="12" class="item bordado run9 black">
+                                    <span>12</span>
+                                </div>
+                                <div data-number="4" class="item bordado run9 red">
+                                    <span>4</span>
+                                </div>
+                                <div data-number="0" class="item bordado run9 white">
+                                    <span>0</span>
+                                </div>
+                                <div data-number="11" class="item bordado run9 black">
+                                    <span>11</span>
+                                </div
+                                ><div data-number="5" class="item bordado run9 red">
+                                    <span>5</span>
+                                </div>
+                                <div data-number="10" class="item bordado run9 black">
+                                    <span>10</span>
+                                </div>
+                                <div data-number="6" class="item bordado run9 red">
+                                    <span>6</span>
+                                </div>
+                                <div data-number="9" class="item bordado run9 black">
+                                    <span>9</span>
+                                </div>
+                                <div data-number="7" class="item bordado run9 red">
+                                    <span>7</span>
+                                </div>
+                                <div data-number="8" class="item bordado run9 black">
+                                    <span>8</span>
+                                </div>
+                                <div data-number="1" class="item bordado run10 red">
+                                    <span>1</span>
+                                </div>
+                                <div data-number="14" class="item bordado run10 black">
+                                    <span>14</span>
+                                </div>
+                                <div data-number="2" class="item bordado run10 red">
+                                    <span>2</span>
+                                </div>
+                                <div data-number="13" class="item bordado run10 black">
+                                    <span>13</span>
+                                </div>
+                                <div data-number="3" class="item bordado run10 red">
+                                    <span>3</span>
+                                </div>
+                                <div data-number="12" class="item bordado run10 black">
+                                    <span>12</span>
+                                </div>
+                                <div data-number="4" class="item bordado run10 red">
+                                    <span>4</span>
+                                </div><div data-number="0" class="item bordado run10 white">
+                                    <span>0</span>
+                                </div>
+                                <div data-number="11" class="item bordado run10 black">
+                                    <span>11</span>
+                                </div>
+                                <div data-number="5" class="item bordado run10 red">
+                                    <span>5</span>
+                                </div>
+                                <div data-number="10" class="item bordado run10 black">
+                                    <span>10</span>
+                                </div>
+                                <div data-number="6" class="item bordado run10 red">
+                                    <span>6</span>
+                                </div>
+                                <div data-number="9" class="item bordado run10 black">
+                                    <span>9</span>
+                                </div>
+                                <div data-number="7" class="item bordado run10 red">
+                                    <span>7</span>
+                                </div>
+                                <div data-number="8" class="item bordado run10 black">
+                                    <span>8</span>
+                                </div>
+                            </div>
+                            <arrow></arrow>
+                            <div class="cover" style="opacity: 0;"></div>
+                            <div class="prize">
+                                <div class="value"></div>
+                                <div class="footer"></div>
+                            </div>
+                        </display>
+                        <spacer class="previous"></spacer>
+                        <spacer>Giros anteriores</spacer>
+                        <hots class="">
+                            <div class="fader"></div>
+                            <div class="wrapper">
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI7ZV" data-dateutc="1708549277437" data-value="5" data-fullhash="673772365EE862817C316DBEDB6C47F600BB345AFC4F8FCD4CE8E00FFB3EB802" data-seed0_owner="server" data-seed0_value="0Iq0konPc75SOC8k" data-seed0_hash="EDFEE7B951EC8CB8AEF6FA76048D8D67CEE80F7BCCFF6646A23FE8C354DD619A" data-seed1_owner="edna lucia cesario" data-seed1_value="jvqYyWqzQCbcLZje" data-seed1_hash="8CE3F22ECCAA93ADFE037B46B16B6E82824DD53EA5BD7E5D8DEAB6CBB332A732" data-seed2_owner="sophia cortney pinheiro nascimento" data-seed2_value="6MtsJX8RQ7C6ReaS" data-seed2_hash="556FD0708C5A9E389B6213DEE2658C37FF747EC8D00F9E8033996CFD9F1E4CE9" data-seed3_owner="eliana oliveira gomes" data-seed3_value="OWbG6pWAwJWzgGpn" data-seed3_hash="13C81DFC34A6D59C9476361E26E16D1C0E032A729C1DCE9689FA6516BDD7CEDC">
+                                    <div class="number">5</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI80I" data-dateutc="1708549300610" data-value="14" data-fullhash="AC357BA41A695597BDAB46054357444828C2EE8674AEC56B3503AFFA2DC9798E" data-seed0_owner="server" data-seed0_value="DC8X6hiOPcck1UsK" data-seed0_hash="D03C2D41FDDF5F8679954410AD66E8F65BC8201317258E1A0346617311355F71" data-seed1_owner="rafael de souza argemiro" data-seed1_value="ID3gP20hmAqAY28O" data-seed1_hash="DB171D8D86BFA56236CF5C93BEFFC3D59B6C87C6ACD683B8BFCA7A20C569512E" data-seed2_owner="rafaele masulini de oliveira da silva" data-seed2_value="Ag2qd9mlyeMpKD1k" data-seed2_hash="ED2688B1F0DC9BE490A730882DACE753C7FBA6A4AE46B8B03406C7FBDF1E2CD0" data-seed3_owner="sophia cortney pinheiro nascimento" data-seed3_value="I8lvdr37AElEBYPB" data-seed3_hash="35B18DBB17716962B0DC1C95522079125D468E7B7591399BDD86F040F608BC90">
+                                    <div class="number">14</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI815" data-dateutc="1708549323767" data-value="1" data-fullhash="883904E1A2CD089E3CD0A2479F907B91C6BA6E7812429F2FC047CB3440DE73D5" data-seed0_owner="server" data-seed0_value="2pFdcEbGTQ9EiY3v" data-seed0_hash="A7F27AFD92D0010BD850408A0A181AC2AE4F16C92566F861D8C6D31BCBED5CC6" data-seed1_owner="jailson cerqueira junior" data-seed1_value="UW2YMQn5w6vgeC77" data-seed1_hash="9FBC00E83EA0CE41C2CB610F6FE5A2190C3C9E481448BEA48EA2C025A55032F1" data-seed2_owner="edna lucia cesario" data-seed2_value="H8HfRwnTJaghJtXl" data-seed2_hash="930F4A602F70AB05E1C3863EB96151BFA53694A7F5228BB86FE0C902C21B7C88" data-seed3_owner="sophia cortney pinheiro nascimento" data-seed3_value="XGNR2WKI4BWB4JZT" data-seed3_hash="430D736151BD12D92CE81E02D2954B3C472A5BBE5B40F81B69C76BB82420DD09">
+                                    <div class="number">1</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI82W" data-dateutc="1708549346924" data-value="5" data-fullhash="54AB06673891DE6444EAF66DD14B80CCF59AA62A54CCEE74CE7FCFC91FFF0192" data-seed0_owner="server" data-seed0_value="hcYrWWrkJqtKANsq" data-seed0_hash="E633B84795F28452FF71A331B6FC3DEDEC0B27B67B81CCAC3B05B2729FF0879A" data-seed1_owner="jonas azevedo de freitas" data-seed1_value="ED5CgmjVyUoI1BPX" data-seed1_hash="C463AFB8C906A929BBA8BEB24019569D545A54192FFEDB3ADD83CEC623F41CB6" data-seed2_owner="sophia cortney pinheiro nascimento" data-seed2_value="uWP97KkfpHX8xqLM" data-seed2_hash="EE7DDDE3B415FAC8BAADCB62B9E5242D848E76CC864914085BF0638907951D55" data-seed3_owner="mirleny pereira da silva" data-seed3_value="I0nORRD9ud6kgLM0" data-seed3_hash="66017EFBFB30CB2FF771FDD5C9B512F81E5E849F93F47B4BA5CABD98F29901E1">
+                                    <div class="number">5</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI83K" data-dateutc="1708549370096" data-value="4" data-fullhash="DF6D55DEDD424C3672460F85E8E41907817CCE0A128104808D9A2A1CF40A0269" data-seed0_owner="server" data-seed0_value="aFZQAwnbPhMvxIKR" data-seed0_hash="F3A3602B71A2F5910F84C0B235B430160A342A0913603B18B79B24BCC3B51480" data-seed1_owner="jailson cerqueira junior" data-seed1_value="XtXjHilTIoGJA54u" data-seed1_hash="6C53B2415533BF106A82F6E9E0231B442882A00035900DE38EFD1E30D2BB343F" data-seed2_owner="sophia cortney pinheiro nascimento" data-seed2_value="Ec6cx0QeZLDLUmKW" data-seed2_hash="73DD0F5A48609326858D756CECAB3C82306CB1FC625834A24D00E1AA2F1A013C" data-seed3_owner="mirleny pereira da silva" data-seed3_value="FjgvlhcIBsp9o3bc" data-seed3_hash="4DB9C79E2AE65BFB48E2D5155E4F4DD3FA6C30FDE8D012E2D86906F7CACA7F40">
+                                    <div class="number">4</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI85B" data-dateutc="1708549393269" data-value="8" data-fullhash="16E858C1A07DEAADF72076F0514055968A723B34A775F06E3B3EB9BE50A27654" data-seed0_owner="server" data-seed0_value="byNEXapE75cL2PMg" data-seed0_hash="57B6CF265EE6095DCCF57964A1A0CA6FC5A0DD100E6C02BEFD6D517F73A90DEF" data-seed1_owner="rafaele masulini de oliveira da silva" data-seed1_value="Xddueh3MmjdqTnvl" data-seed1_hash="94C3DC66E038DAB06D13960790339FA12AF3AF5D75844D2E69551AB38FDB12EB" data-seed2_owner="mirleny pereira da silva" data-seed2_value="xDWDL9eHfp9tCodC" data-seed2_hash="01C6A82E0B126BE46225DA13571BB97C01A16CE69BE58609734A60DA216D28DD" data-seed3_owner="dhiego tuskanoro leite correia" data-seed3_value="c2O3FFU8RJND46ID" data-seed3_hash="734D8BE70916BEF9DC0D03018217B5F610B6819EA631FB65BC8C667284029EDB">
+                                    <div class="number">8</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI85Y" data-dateutc="1708549416457" data-value="2" data-fullhash="EE3FB505616ED2CE094347F27A392EE49EDB501C5E9D80623D8CB9D5559847C5" data-seed0_owner="server" data-seed0_value="YIsscepxRmkRQ1la" data-seed0_hash="E3B82D9B7E75CF48272A08E7761175288FB2F4AA6EE34C3CFF3A4E85363EF60D" data-seed1_owner="mirleny pereira da silva" data-seed1_value="IqCz5v0aTYVwISvn" data-seed1_hash="3B88628DCF8B7D603747C28EE8DA6F845B8960BC263A9534839A1033DA9E14E0" data-seed2_owner="eliana oliveira gomes" data-seed2_value="MUMqjtRTOL0kyrvy" data-seed2_hash="840A88F54AC4C85FF00305A80BCF5C02243A7F994156C78F11479C21F36AF403" data-seed3_owner="sophia cortney pinheiro nascimento" data-seed3_value="R3lHwmoGrH5NXMQF" data-seed3_hash="A9CB5602919B39CCEB32C622E4044CECDE9573199B2D3B8F6BF99BE28D727282">
+                                    <div class="number">2</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI86L" data-dateutc="1708549439614" data-value="10" data-fullhash="0F8E4AF4B861D27E85F01188E02E0296E9CCE7933A6D6931F132C946F0246699" data-seed0_owner="server" data-seed0_value="RtVL8D3bqXx8Rb9q" data-seed0_hash="79D602BF76086AA9149AB43F93B6CB9899C65CC089AC56D79383FBABA0CE0B07" data-seed1_owner="dhiego tuskanoro leite correia" data-seed1_value="esZ3moSa0ouX1Ug4" data-seed1_hash="F15F3E5A3DA74780AC17D11078A416FFEF0E03395B86E2367881109E1605BE32" data-seed2_owner="mirleny pereira da silva" data-seed2_value="xqr8nvj9Gv4TLKL4" data-seed2_hash="AF3F39C05A7FC347402C01BA75E1E09A090F5169E7158E51F7A9956D02C1FCE3" data-seed3_owner="jailson cerqueira junior" data-seed3_value="MDGXIN1FDbqQ1MR1" data-seed3_hash="A54231A27D0F81F70A2913F9F2FEFFCC25FBA6939859D9C03ECE6B9CED901502">
+                                    <div class="number">10</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI88C" data-dateutc="1708549462786" data-value="7" data-fullhash="AB43908A369A295AD436AEE17E3A49A7B76ED1291174AB5B2085478FA7BD6333" data-seed0_owner="server" data-seed0_value="JrSxu3IgT4hkGebD" data-seed0_hash="26065ADAB772D1A4E557AFE05C6F59EB7B6F8D5E70607DE0A5879BD8649F4D5A" data-seed1_owner="mirleny pereira da silva" data-seed1_value="wrOgQEBMUULC9WK8" data-seed1_hash="F68E63D5C5261411E67323309C8180EBF87915DB0D4AA13F69BE6DD08BC280FF" data-seed2_owner="felipe dos santos ferreira" data-seed2_value="zJt8rtAM5Gx40SVA" data-seed2_hash="8085FC031AA07C427FE4B2A46A5F9C7267BE0BBB70E841BDE281B9CA9CE6DB12" data-seed3_owner="demonstracaonjcr" data-seed3_value="DRpGF5lRM0awtCLP" data-seed3_hash="6C5E9D007500311C9C62939E3325ECB2FA53F3E8AFF09A8FBB795FC77402F895">
+                                    <div class="number">7</div>
+                                </span>
+                                <span class="white" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI88Z" data-dateutc="1708549485944" data-value="0" data-fullhash="2285DE6CF65D941C328A5C66B18ECD657BA3F83E9257DBF84D4BABC4C3CCB455" data-seed0_owner="server" data-seed0_value="HFa95RF7TfK0SQYN" data-seed0_hash="B2746C57B2F046EE8BEEC3D48F6A1AB9B23B2F88859D4E4B48E5D3862EF0936D" data-seed1_owner="dhiego tuskanoro leite correia" data-seed1_value="OuUwOzWLB7jWBtBy" data-seed1_hash="F5DE5C3BB1343A66290914791B134F124B75BEB0A392FB582130DC15C79F949E" data-seed2_owner="jailson cerqueira junior" data-seed2_value="gdjwOxCtcCOL6Nqk" data-seed2_hash="08BBECF59A0C1FD24A7501350E8C0CAF3BE2146B26E7119BD19E8490D3A5757F" data-seed3_owner="sophia cortney pinheiro nascimento" data-seed3_value="aBM5gC4JaxFUn9pq" data-seed3_hash="23A0F4A208D2DDEAB405E45E1337ED63D8F8BCC52C3AF28BDF0D72A797A8DD7A">
+                                    <div class="number">0</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI89N" data-dateutc="1708549509100" data-value="2" data-fullhash="72FC3D8B0587225477A98807AA578E8C505E34CFF520C723FC3326F46285D14B" data-seed0_owner="server" data-seed0_value="yqjiGZNHcAebsmbK" data-seed0_hash="05EEC3B34093E913A6E2238B3848FD7C15B9ACB50E4BD0EAFDE42EF07ACC61B8" data-seed1_owner="mirleny pereira da silva" data-seed1_value="GAB4BoebaxNbuzdj" data-seed1_hash="3B5054D8465AFE4F9E85BCA2F37ACB263FB8F744025B6D37524795764B77B966" data-seed2_owner="felipe dos santos ferreira" data-seed2_value="ZeykUNGFLXEFjsOT" data-seed2_hash="F81024C0F692C6203C966677D3715C2BCEF9B1378F5C8207107E3B8F2609FAE8" data-seed3_owner="carlos andre viana lima" data-seed3_value="GSlPDDZ7CKI3sPBe" data-seed3_hash="83A7A9233D91DC602EAF027171CC1231D41C34DF52AA0B782512E8C635B18ECD">
+                                    <div class="number">2</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI8BE" data-dateutc="1708549532258" data-value="9" data-fullhash="C0E9745B2E8C91C5D4FB0ABF31CC411AF28D249DEE090CBE575954636333052A" data-seed0_owner="server" data-seed0_value="olFsPWzKATpmnIrV" data-seed0_hash="698C569C4EE9BB23F852CC95EEF84C138F906831ED1F3C079A09F8A19C53D5F5" data-seed1_owner="jailson cerqueira junior" data-seed1_value="QCQV2njfCXIiCXdd" data-seed1_hash="CF104692C5ECBBE1A1E41B75CA2E8055DADB73EF7949A7F8846722BF618E9A64" data-seed2_owner="carlos andre viana lima" data-seed2_value="j3uviTpU2nXW9VTO" data-seed2_hash="0947F0B97490CD58D51A8F99334832F77C3A1D6316516426CCE6B9BF33161A8E" data-seed3_owner="gabriel moreno lima" data-seed3_value="G8DE3M9MKbtFfumm" data-seed3_hash="30D425CD565EE3FEAE3A3617CF847048A30A1A90DB2DCC18A4FC0427A50BF588">
+                                    <div class="number">9</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI8C1" data-dateutc="1708549555415" data-value="7" data-fullhash="4A0180B4DB798D68D33D2D20A16069805F2E39C7DE9973A28A259A45070AA9E5" data-seed0_owner="server" data-seed0_value="MI6HUW2Hx3Thht6b" data-seed0_hash="42D19E0717B257FBCF4D8739DE41B2404312B4B8F8DAC13C610E6D5E9F8E0B86" data-seed1_owner="rafael de souza argemiro" data-seed1_value="iGVltmrtDbfREw74" data-seed1_hash="248BCF49922DE07F17063BFD1DF37C7B5AC8D6DE6EEBDD6F6210701A211589D6" data-seed2_owner="sophia cortney pinheiro nascimento" data-seed2_value="rRla8vkNucYwdJxb" data-seed2_hash="1F644ABC9ABCC8C954AE6DF047333E461B08B27AE35AE6CD6509041AEDE336FC" data-seed3_owner="mirleny pereira da silva" data-seed3_value="D5RdBFoTJkNlVIrY" data-seed3_hash="EA758B5B3A6EEF4E6A049D2DD437A5D0FE251D7EC726E87492AD86B7344937E7">
+                                    <div class="number">7</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI8DS" data-dateutc="1708549578571" data-value="6" data-fullhash="C677808759DD6DCBA34A60944743BB72D38C564D6598E7AB9CE6754A1E60825B" data-seed0_owner="server" data-seed0_value="17XCZN2kiGztJZLR" data-seed0_hash="600A7C4AC4EF67920DCD4858D4D088D243399B4286C0ACEA97E329AC47C85F45" data-seed1_owner="sophia cortney pinheiro nascimento" data-seed1_value="ND9LyQghmx2xbme8" data-seed1_hash="3CD7064683EC6BFA0B7E1D68AD79B2CE4FFACB2E74FFCC02907DF7CB72083E57" data-seed2_owner="carlos andre viana lima" data-seed2_value="5RcUZQ9vAZdU8SlJ" data-seed2_hash="AA160ECB99FF704850C06394B68225C0A49A70C14B20190E4C4FDBDA146E306F" data-seed3_owner="jailson cerqueira junior" data-seed3_value="LZVWoNisufazS6YU" data-seed3_hash="820955B8BD3C476EE2C636D665A136F50C446295E469C9F3044E5D551024AA09">
+                                    <div class="number">6</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI8EF" data-dateutc="1708549601729" data-value="11" data-fullhash="374784F0BDACAA0DBD7618E0B86129FB559C1E3BEAFD8F7F858DCF0C6AB60B15" data-seed0_owner="server" data-seed0_value="eAmxt3kQxNIfYYYG" data-seed0_hash="81F60053C7B5786B9667D549792762AE16499AB30D80065E939211389EABF5BB" data-seed1_owner="carlos andre viana lima" data-seed1_value="0TksAB6jfsU4gAai" data-seed1_hash="D2E37445E763B99788EA265EAB6E71A8EDB821A67B43C54A41C9E1D24621DA5E" data-seed2_owner="sophia cortney pinheiro nascimento" data-seed2_value="Zns3JTeNfyoffdxF" data-seed2_hash="4A049F8BD3E7081FD4B5453E0A132334E33AB55F983CE380F64F19A51BD08B89" data-seed3_owner="vagner da silva leal" data-seed3_value="lynaXE071tDwMHgU" data-seed3_hash="E50CEBEA0867E655FA4D22E9EE9BE1DCA9D325E5F4AE3B2EE8F5EE03E4673030">
+                                    <div class="number">11</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI8F2" data-dateutc="1708549624886" data-value="2" data-fullhash="FF0217911625001182F53038FF8ACEEB4CDA84ABDD4E17D418C276AA5EED5E8A" data-seed0_owner="server" data-seed0_value="NbeiWwttfAoT6Gfh" data-seed0_hash="3B684568CFEE5F81203E4A9D3601769E5E6CD9E3B6013D8D4B66D00271EC2965" data-seed1_owner="rosilaine de miranda lima" data-seed1_value="QfR8TkKuxGDE2CUc" data-seed1_hash="5400A27EDFFEC743B2A9BCBDA7EBFBCE60250EC86A323FD6BAFCF25511609758" data-seed2_owner="frederico camargo luiz" data-seed2_value="ZKUnulsQ2ViG5QnC" data-seed2_hash="177A1B169C27EBEDE7099FFFE19483C212FFBE0434A92AE7FADB866AF4F5990C" data-seed3_owner="sophia cortney pinheiro nascimento" data-seed3_value="weUNfa9PpoNt6lBQ" data-seed3_hash="C2AB22D646D7BE219C1019B2F9B162E91E822A6A07409EABDCFBBBE1A3F2954F">
+                                    <div class="number">2</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI8GU" data-dateutc="1708549648043" data-value="8" data-fullhash="22E1592158EB3F3ADFFD80052BCACCE3B7AE9C7C33F57100E821731161CB3B7B" data-seed0_owner="server" data-seed0_value="yS2j6j1Rtg0ijxgU" data-seed0_hash="0DA0977ECB0184C8716370EE5B3AE4F4E2A2516A15A46B099273EC6F67E7C8AF" data-seed1_owner="evelin de oliveira daniel" data-seed1_value="wMRjaa6b1rMORVuG" data-seed1_hash="E1CCAD2376D50BC425D66484A56AED7DB90C9C69E558B0F1210BC91A39E1E1DA" data-seed2_owner="vagner da silva leal" data-seed2_value="S9k5KOEa5FbkSWyL" data-seed2_hash="4A4DBEC3E07CE828089DBA8667A1002A0B8F7981651046E95BFA44E24AF7F196" data-seed3_owner="joao pedro ferreira de almeida" data-seed3_value="CZzOxBabNVSS0dx8" data-seed3_hash="D198A1B193849830174D657826DAD669DB7E60ABFD2235ED33554D4FE4EFD1CB">
+                                    <div class="number">8</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI8HH" data-dateutc="1708549671199" data-value="10" data-fullhash="F4D27A6FE2835D0C0F6D5D5CA8BBBEF3D2A98BE0FF14546BE756D611FA6C0E5B" data-seed0_owner="server" data-seed0_value="3P3xWilK7hxeS9sV" data-seed0_hash="B0B764A0EEB4FF2A8A372D3FB52134A0CB5782561B9FD47046A52F526C38673C" data-seed1_owner="jailson cerqueira junior" data-seed1_value="RuDRHu2cDmlEzaGR" data-seed1_hash="58E689D68435C898B779F14AD29489CA266361EA14BF3A2E45EB9B7EAEB851A8" data-seed2_owner="dhiego tuskanoro leite correia" data-seed2_value="gtk6apY7saZqVO3F" data-seed2_hash="7BE6238A8F79BD468329A062405DB5B724EA9D2634EF0CFE0FCE4883A5E321ED" data-seed3_owner="evelin de oliveira daniel" data-seed3_value="hq8BqjkRRwPPJweL" data-seed3_hash="33414B37D25B3A87FFD1CF8240E89E81F8E196B124E240F442FFA972B7DAF399">
+                                    <div class="number">10</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI8J8" data-dateutc="1708549694356" data-value="10" data-fullhash="05F7DAA5A26AA5728A6CAE8D0825D8D70FBF60E18A83469E41A79E8AB2467EE9" data-seed0_owner="server" data-seed0_value="1irkeW7NMQ54AFeg" data-seed0_hash="7F532B5CE4A4F4CCA202915266C0D47B7F9763DA4A754CA5A31620CA2CAE3000" data-seed1_owner="matheus bolduan" data-seed1_value="uhD20uhgRFSoyPST" data-seed1_hash="805D2DDB29EF6797973B2D52E16A6988F48FD84ED934955BDCB69B25FE7813F7" data-seed2_owner="carlos andre viana lima" data-seed2_value="lqZXzkIe7ZL4MnPK" data-seed2_hash="C883874284A2D691602762DF5BD68752FAC5B31052E17D88EABE5F4830154C5E" data-seed3_owner="dhiego tuskanoro leite correia" data-seed3_value="8cNgzpyjDKrf1mcz" data-seed3_hash="342074F1F2EB38CC82CD85B47046D2221DA1507D3389395DA79DA573F374CBB6">
+                                    <div class="number">10</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI8JV" data-dateutc="1708549717514" data-value="2" data-fullhash="EDD6F62E156BFA401CA64DCE2F1535817BD777885B4499ACE2EC6FA8FEF317EA" data-seed0_owner="server" data-seed0_value="7QJPvDgCO0TW0DhJ" data-seed0_hash="AD3617FFC557F411EEFCFCF28CDFA278477663876AE432BB113EA04E52F2621C" data-seed1_owner="carlos andre viana lima" data-seed1_value="Slml4qdqNEggXzwG" data-seed1_hash="901F78934C1BAB3CE77DF9390152525C1298D3F541AD55A662132F5EC21802C5" data-seed2_owner="ana julia benatti dos santos" data-seed2_value="pB9NIsI9lWXzVyjA" data-seed2_hash="4732F96C00770F7434FCCEFE3F8A8EC4361BE48CD48F277624FCA25BA811D0A5" data-seed3_owner="matheus bolduan" data-seed3_value="MWoryEya7eVZsvmF" data-seed3_hash="312E1874DCA1ABE7300D1B1DD1FF3562F76E6C704CCD66079B9762B7D5350DCC">
+                                    <div class="number">2</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI8KI" data-dateutc="1708549740670" data-value="3" data-fullhash="7D9A44A48324D336113BAB420BD217026D8BAD37DBDB7A9376DB79FD68EB1531" data-seed0_owner="server" data-seed0_value="4VuBP6tAK1fmG0fo" data-seed0_hash="25E97F52E56B5574C9CCD0529FAEF54999018E57756A7D6EFA9163F0BCA00ED1" data-seed1_owner="roberto rosney ferreira araujo" data-seed1_value="SXRsRYKkZzFAjsLc" data-seed1_hash="8030EC0892E3FD9765B0DC84F20AD31C87A5271FBBE5CB7DCFA2E7BF08737D44" data-seed2_owner="dhiego tuskanoro leite correia" data-seed2_value="Q6bePlYJgRFTaUmp" data-seed2_hash="A16B829219CB6D6E3A65EFD160C91B0486DF771A026FCCB0AA6D198821332CBF" data-seed3_owner="carlos andre viana lima" data-seed3_value="EWSYv3jjyXC3Ambs" data-seed3_hash="74514C6D9DFD3F6110AAA57BCEB472B5928ABFB7C4EDCC180A2B8B62CF308339">
+                                    <div class="number">3</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI8M9" data-dateutc="1708549763827" data-value="13" data-fullhash="12A4047D4ABB75FE6D167BA0EFC3904FF295DBF65BC181A0A0FF87D1BF85C445" data-seed0_owner="server" data-seed0_value="qFk919DhCN7hO2ZW" data-seed0_hash="B37614EAF5C55194E06D32300E4DF260D3F6CC5BC78DF4279D40E5D20D0943AC" data-seed1_owner="ana julia benatti dos santos" data-seed1_value="MVPuSPfu8RAhW48u" data-seed1_hash="F9B1B9EA8B5C83206CA23B01A6F5B6265CCB709E9B17A3552D15BEDCD8C6374E" data-seed2_owner="geovani matias benta" data-seed2_value="YvPBKSvQjbgEfIGH" data-seed2_hash="5F74BC63A9388252B27022F3E8C7AFAA45EC135EFF428798DF155EE8DF1FB94F" data-seed3_owner="joao pedro ferreira de almeida" data-seed3_value="llUSilo8Xmy6lMhU" data-seed3_hash="9921D71FDB10F23C5B165288E3E74ACF9A54ADF3F381C1B61AF9561992B14DCA">
+                                    <div class="number">13</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI8MW" data-dateutc="1708549786984" data-value="10" data-fullhash="EFE54BD0DD8134376A5DAAF34059DDEA7EA2561A378D1B9456A8F736F153E061" data-seed0_owner="server" data-seed0_value="HrqVqYdwvA01vMVT" data-seed0_hash="F547C634691F610BA6FEBFE6091063A8282921AC9A9D8FDCD724C4A59AD46BA5" data-seed1_owner="geovani matias benta" data-seed1_value="sXwX79GVtSYxqay1" data-seed1_hash="31F4BA9667D5944F4F4F20B29D248E976D709DD4A32021AA284CDACD796EA3D8" data-seed2_owner="dhiego tuskanoro leite correia" data-seed2_value="rWzC5o66bf6J0y4C" data-seed2_hash="1189B37BFFBE06460988A6FC6452FFA9FA899B4139821AE5466338300F714B82" data-seed3_owner="joao pedro ferreira de almeida" data-seed3_value="wbybdtfjDjvIfLTO" data-seed3_hash="28E300B72F5173A908ECB03A6931E09DC8F00A2010C171A89233131C2E546968">
+                                    <div class="number">10</div>
+                                </span>
+                                <span class="white" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI8OO" data-dateutc="1708549810141" data-value="0" data-fullhash="8C40ACC962CB4E4FEF45C1AE1C803E49896C7455A3EE76E001A7280E9CFB7F57" data-seed0_owner="server" data-seed0_value="hSt2qjmBj1fVP4EL" data-seed0_hash="284468EE5787C2BCD1BB4B9B817D48DF8B5B31104FE589453EB0A1728066D118" data-seed1_owner="carlos andre viana lima" data-seed1_value="ysCwfIg12rA2ozon" data-seed1_hash="8398AEB31FB1CE45216762513BEA62E0CA5482F9C4724BE48B217CDFB9ECEBE0" data-seed2_owner="geovani matias benta" data-seed2_value="JABafcqezDYuu1hd" data-seed2_hash="971819234BA90752CC3406E3B68EEBABBEDF845F81872D4343A2BE48DF3A4649" data-seed3_owner="dhiego tuskanoro leite correia" data-seed3_value="xyOo3aFYK2tu0U3W" data-seed3_hash="D75099198EDAD745984A1C006A9D09220C219F5EDF0BC2E0F7041F9A51A5EBF9">
+                                    <div class="number">0</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI8PB" data-dateutc="1708549833298" data-value="14" data-fullhash="A32648B40493AD33D22D3C5DBF6479893299171C79035B1C30FC2E3A25F54754" data-seed0_owner="server" data-seed0_value="67URcewzHQlAVFe9" data-seed0_hash="39A3D74CEA8B4A3A9932127383B44674339D423422F7C33C3369170E7F5A0677" data-seed1_owner="luan victor nascimento neri" data-seed1_value="hO2COZwLs2hdB6fE" data-seed1_hash="CB91CD09F13C0C7016EE92F2775E54EED8CF4926B9135E051D75947980A3AD41" data-seed2_owner="dhiego tuskanoro leite correia" data-seed2_value="5JlfAlDi96p0RBc6" data-seed2_hash="EC0F274AD20DCFD60F61E4FFD2D0578066B72544AE15FA3A7FB67EA92772BFAB" data-seed3_owner="joao luciano martins neto" data-seed3_value="hK4XQpM1aAOelfxE" data-seed3_hash="55FAE83980BCD86072F6E55250E683049E53241C9484328727696598CA319683">
+                                    <div class="number">14</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI8PY" data-dateutc="1708549856455" data-value="14" data-fullhash="5EA1337C9CDDB87F4BFE5DF9AD423902F64E148FAF5860E4C81B4EE12BA2E903" data-seed0_owner="server" data-seed0_value="HkP2UwaAXr7SmZnn" data-seed0_hash="2CA5D10B7798CB5D205B18EEC96C4220C64C3574D6197095BD9D1C02387543E5" data-seed1_owner="joao luciano martins neto" data-seed1_value="tIfoblngYkhfqWyu" data-seed1_hash="9A38774DBD31E10EBBDB8BEB2C14D29A9367E18EAB40DE885018119D948B06C1" data-seed2_owner="carlos andre viana lima" data-seed2_value="rH2jbG74ReNOoK1c" data-seed2_hash="D3BF7EB021E3CC3ACC0943A3B696C611E0EA3B93CCAF740885E5285F068B4B5F" data-seed3_owner="airton richardson silva do nascimento" data-seed3_value="QZVJa1y98b1lkCO6" data-seed3_hash="9B41D4EC48E3F589B1FDB8D9AD3A5B1C6103D17445966F3E8740286BC0F85DD6">
+                                    <div class="number">14</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI8RP" data-dateutc="1708549879612" data-value="5" data-fullhash="418CBEF24D10981FA5FD17A6B76D70D00A806C51712A392D7916C67EC3D90103" data-seed0_owner="server" data-seed0_value="aQq9VTI9MOuRypT6" data-seed0_hash="330A762AAD11B2290A81BB3A53252298E916549C3C8934B7A365C20D10335C13" data-seed1_owner="geovani matias benta" data-seed1_value="Mtk0yvs15WSL12gz" data-seed1_hash="805D13FDE55A444C22811B8D8052E05272864812288DD00E27C7032A71064012" data-seed2_owner="carlos andre viana lima" data-seed2_value="XFp0YwumNbpFdXRU" data-seed2_hash="9C8F758235C73690FD614281A3CCB10B682FCD1DE00CBFBF7E6AACB61637340D">
+                                    <div class="number">5</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI8SC" data-dateutc="1708549902769" data-value="1" data-fullhash="45169891340389C8DECF6702F4662BF42A17199984C1F2FD829B5738C35E2594" data-seed0_owner="server" data-seed0_value="7V149GEU6GusggLH" data-seed0_hash="B4F907A554D6FD08B32F6CA0D1BB2FCCBCA49057749D5BB62B5B1B5A115E4073" data-seed1_owner="carlos andre viana lima" data-seed1_value="JnNEM6O6Cq9zAfLp" data-seed1_hash="62BE9EE1C7BA698E1B430198C24294F03CC23BDCCCADD8DBE3BEF67C3C9A83E6" data-seed2_owner="dhiego tuskanoro leite correia" data-seed2_value="F9rbeOS8B1s7o21s" data-seed2_hash="00ED6BE55DB8DF632B583F6AE42FEF2FC110240C04B778A083836C417AB6A03B" data-seed3_owner="douglas de souza freitas" data-seed3_value="Aq1ku3QiVEtKIgQx" data-seed3_hash="A75017D8541BC2F3B8B33DC9025936FF3DF79FD4A0560C5ED8C043C4B81968C7">
+                                    <div class="number">1</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI8SZ" data-dateutc="1708549925926" data-value="14" data-fullhash="35951A9CB8B058DB3871E6F81A7FCECA7275ADBB44A7BD68983A974E47E20FE4" data-seed0_owner="server" data-seed0_value="klwfnyvn9qXFIboO" data-seed0_hash="54C20332C351068A09AC38BAF25B6682CDB1028B4C8F5E36BAD26F890044DE17" data-seed1_owner="dhiego tuskanoro leite correia" data-seed1_value="ZHjOLhoO3XFbJT41" data-seed1_hash="29D622666E3C427F4FE5BA4E58BB8491DCA981A5C8F57E6498CE05270BF0A9E8" data-seed2_owner="roberto rosney ferreira araujo" data-seed2_value="s18GslxUZJTgCEdx" data-seed2_hash="30FED6EED9FAB5608D4329048BCCA3B5EC17B38D19A9621D302C591B519925DC" data-seed3_owner="geovani matias benta" data-seed3_value="ANEspyrHijs1EVZx" data-seed3_hash="23386E448DC2AFEAF562E72DE2204847E877CADEA6B4E1481A801B05406F3757">
+                                    <div class="number">14</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI8UR" data-dateutc="1708549949083" data-value="2" data-fullhash="BA94A474D07CC1CB00A0C876550EFA5EB8100265ABF4FC44E785CA04C695D431" data-seed0_owner="server" data-seed0_value="sQRiuaTEGAChOowG" data-seed0_hash="463124C61884DDA8346174413A91F8486D011246C714E6D4C4159B23F4BBAB1D" data-seed1_owner="geovani matias benta" data-seed1_value="fkpOHSP75zFgvnC0" data-seed1_hash="B906B2A2C84C80B657F8E7D0686ED905F3C7BFC93530B97C990CECE323A2E952" data-seed2_owner="rhayssa da cruz regis de brito" data-seed2_value="4QSFCpguMaL0b8S8" data-seed2_hash="78C1EE23769CE865E5370FEA4BEE453A16C9EB24082E9C290827D067FCC825FC" data-seed3_owner="matheus bolduan" data-seed3_value="pqlLJXm2KvWkvOFC" data-seed3_hash="334D4C76FD2E8BDFA569F4BE0337FA1301861A5BD131C783BF1BCED218E5B953">
+                                    <div class="number">2</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI8VE" data-dateutc="1708549972240" data-value="12" data-fullhash="9CDA486C6E91DC47FF413210C722C193609D4B7680940B88C31DB615DDA1417B" data-seed0_owner="server" data-seed0_value="ee4DaYWgaPtB5QGS" data-seed0_hash="A7C191AB5A2237A56F0B0F9666AD449F521DDB6E10D56A7BBB5164A9E0560BA4" data-seed1_owner="joao luciano martins neto" data-seed1_value="1h7sHFqGsaeNQTVQ" data-seed1_hash="ACFEAC6669C24B316DFF7FC56237E1B16E98F02BB8C9699D0622A7BFD2047C73" data-seed2_owner="carlos andre viana lima" data-seed2_value="iOrfiDBbBEWylC0L" data-seed2_hash="047C0B67BDD5AAB8A2A2067E3E7DE8615A79541874A80E4E6F699A53525083C5" data-seed3_owner="mirleny pereira da silva" data-seed3_value="poumZ5h5pg2LU5dK" data-seed3_hash="4C64CAAD177EEBCAAF832612F821EFE4A37A5297A9104FF9B3B69BD2CE31284B">
+                                    <div class="number">12</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI8X5" data-dateutc="1708549995397" data-value="13" data-fullhash="B687E57EBC3BBA20EFC7924CE86A30C22175128702239C7B4B25B8222EE7438D" data-seed0_owner="server" data-seed0_value="LzORJ61rErNb5jDS" data-seed0_hash="C08C8F4E49966B6927EACB0835AD3A061A03FE24239557FCE581BB54E0F5CDF8" data-seed1_owner="geovani matias benta" data-seed1_value="Vu52yADfdjU0Z8ZH" data-seed1_hash="1DAD8DA8274672D6ED4813205FC34BFD1E1D1376F757D23E2484A0CCE901BADF" data-seed2_owner="carlos andre viana lima" data-seed2_value="zczFQboUURTzOM54" data-seed2_hash="376790B02C94AFD62CB8006C3A5E9A42DA18D145EC568E441A986BF53E33BB9D" data-seed3_owner="vagner da silva leal" data-seed3_value="WzL7TFN14KyUluoI" data-seed3_hash="136917ED0CF647837C56EFB4279744FD8F8A57BF3A7A0A4DE6EBC59C9265E912">
+                                    <div class="number">13</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI8XS" data-dateutc="1708550018554" data-value="4" data-fullhash="65C6D193862C5D92FF76576E3A6DDA036C54949EB6CD25BABE38D30D948219FB" data-seed0_owner="server" data-seed0_value="6toYzHL9Ht1HLY5N" data-seed0_hash="D2E30DCC416B11CB20C8B628BAE55BFBB0CF09415AD0611791C369377A25A46D" data-seed1_owner="matheus bolduan" data-seed1_value="BVsUsC1Tt2Rfx7up" data-seed1_hash="C9AFAE0A459D1DEB5727CC31B7A46E8F347A6B72F0683F29D79FD08407056AAB" data-seed2_owner="joao luciano martins neto" data-seed2_value="yYwPBjgHeFwhv95s" data-seed2_hash="0775AF64E4A1559940AD1AD6F41B117160BEB45EFEEE22D239FE4632008447EC" data-seed3_owner="vagner da silva leal" data-seed3_value="iXm6nG1XKopBlLcB" data-seed3_hash="2092D31AF79F87A3DB9793715A6F81EACEE0887389574764D17C59A72DE66ABF">
+                                    <div class="number">4</div>
+                                </span>
+                                <span class="white" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI8YF" data-dateutc="1708550041712" data-value="0" data-fullhash="9502D927D0AC9E18924680CF744A03BCCF986F65AF8359877736D0AA6707D0BA" data-seed0_owner="server" data-seed0_value="8ZHUMFjkI1kHIhFn" data-seed0_hash="47E0822B58F2DD24B04E3EC96C156EDC384FDBF5AA2A4602FA251342D5D0164A" data-seed1_owner="luan victor nascimento neri" data-seed1_value="bLnH5EpfxsYVfJwN" data-seed1_hash="040B52CAF5FBA9BA0304B4847AB6F055814BC8274C4898C1A8DDF824E0ABCCDE" data-seed2_owner="carlos andre viana lima" data-seed2_value="V5ESi8jtkp5hthiG" data-seed2_hash="01F7E4399C9031589DC88E89730BCD8AE1F3AEF6A6484394F1B610FF04FB02D9" data-seed3_owner="matheus bolduan" data-seed3_value="x8zZrJb0dwxXBhmg" data-seed3_hash="AD429EAD2591727ED585F6FB2C39EE13AA4A56F00E0BAA794B4333546813776C">
+                                    <div class="number">0</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI906" data-dateutc="1708550064932" data-value="14" data-fullhash="D55DB764722955E46456BC78811F64E36882981CEBD1396A25EFC08FC0818AA0" data-seed0_owner="server" data-seed0_value="DonpQvZUr21s6Dwc" data-seed0_hash="3159ACA321EEDF6FC1BDE3FEF923425B20082C9A8ECA2BDE36BA9F74E7E873B0" data-seed1_owner="carlos andre viana lima" data-seed1_value="FrQk7fxrXHfqvsLi" data-seed1_hash="7AF588F91F7C903D54844F1B0CC42FE23F0C1DA4D017E51A44AF1F2C30942ECD" data-seed2_owner="vagner da silva leal" data-seed2_value="OxJjIBiOnjlINF9R" data-seed2_hash="B9FEF1DD74114D116FC3F78A9807449F655C3EF431781E4793DC7A8A8D4D426B" data-seed3_owner="geovani matias benta" data-seed3_value="2sozDusdibxwUD8W" data-seed3_hash="88EE9DDD370724C77CFF25571FDEFDBFE7D56F884BB769D1F1521AE0200456E3">
+                                    <div class="number">14</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI90U" data-dateutc="1708550088088" data-value="3" data-fullhash="6157412A5A628B116A996B6B327B77DCEA40D2152A5BD6F9E3419DB0E337A01B" data-seed0_owner="server" data-seed0_value="pnF5HjIfqTANRDl8" data-seed0_hash="D8043D7178A35D3ED100FC5090DCBD6EFE9E3FAC12F064D4FDB5544352FD10C0" data-seed1_owner="evelin de oliveira daniel" data-seed1_value="es2a3uTOfme3TVEV" data-seed1_hash="E6218ED3FFC66F72D68D49980AB7EB7D9A85124AEBE89413DB63E63027EA3FDA" data-seed2_owner="angelica araujo silveira" data-seed2_value="SiA236NGpg2FRc2K" data-seed2_hash="9EF898B9096B317B050E1795AACE8D2D079BA71CA981190D94C47F0262646578" data-seed3_owner="geovani matias benta" data-seed3_value="H1yMPeEO582GWSjJ" data-seed3_hash="A55DEEA61DA39EAA2A08AE4EA620F861F417D15844D763D4A04D986C8D5B121B">
+                                    <div class="number">3</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI92L" data-dateutc="1708550111246" data-value="8" data-fullhash="6E173D06F6E75EF1E1F3C2C9DC18EE8EB733DE04A057BE190F33AE35EF2B4C84" data-seed0_owner="server" data-seed0_value="yFm2r1xZ1ADo64jg" data-seed0_hash="5AF8572CEC54FB3CD1238F212ADA9E5B8EB79112B14E164B595C1A8754307A00" data-seed1_owner="carlos andre viana lima" data-seed1_value="eGTd1oSpqW3Pnaed" data-seed1_hash="B42225ECF1609BAF6432CEFBB3810468C5896B063ED7F60912B8DD15C801ABD1" data-seed2_owner="geovani matias benta" data-seed2_value="Mgc541QPsinbkTL1" data-seed2_hash="19DB1B03456200A6BDD1716815CF395E0B30523F5BA7B19CF640813719D93016" data-seed3_owner="gabriel rodrigues machado" data-seed3_value="9YnUFQzCfwMXFiTq" data-seed3_hash="105F7AD475A7411647DB3F30F4BA2AFDB340C2C732DFAA3391496184C07CB395">
+                                    <div class="number">8</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI938" data-dateutc="1708550134403" data-value="4" data-fullhash="2ED69E4B33E84186C791DBE02C39698A0BA05964739BDCF020B52585BF3AD9DE" data-seed0_owner="server" data-seed0_value="1MvOf9QjURU2fCIG" data-seed0_hash="6015355593AC9EAF23EF6AFD3E94AAC05A821E3360F217E84C48397B8441DBD1" data-seed1_owner="evelin de oliveira daniel" data-seed1_value="bFyT6swkZdQMkrOF" data-seed1_hash="DF53CA29ACCE556982985D9EC48FB735E9887A91E817146A3823FD6256002FE7" data-seed2_owner="geovani matias benta" data-seed2_value="ULcmf0Uyy6KYIIYk" data-seed2_hash="AE3B635C4CD72538C43CA7E25D77CC5BC3CF3041ABB893713393A4596C9F89BE" data-seed3_owner="carlos andre viana lima" data-seed3_value="dzTS6nnzOMi3DORX" data-seed3_hash="7F87CD8D73E088D5B2EA0D07EFB378E076144723D3E776B680DD57BE41AFFB68">
+                                    <div class="number">4</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI93V" data-dateutc="1708550157560" data-value="1" data-fullhash="4CA4E41905819F5A31F4C4C39C59118E730C836492434379A9EF8D8841A3FB9B" data-seed0_owner="server" data-seed0_value="afulYWknydeZsll5" data-seed0_hash="E68F04CA2F8E17AEEF6DD9E3A883EA8810FFC2440F5E87B4E35039E69AA242A9" data-seed1_owner="luan victor nascimento neri" data-seed1_value="D07VUAteTcXfR25c" data-seed1_hash="067B5E0A103D3882D7AAE51B0F1928F37F5D5F6B129ABEF3DA1B925DA58828B3" data-seed2_owner="vagner da silva leal" data-seed2_value="USQJWcEglmLIg604" data-seed2_hash="FC1943F8839FCAD8E5CE76CB129CD9525D8825A83714F47C102219E6CC3B0053" data-seed3_owner="carlos andre viana lima" data-seed3_value="oiMnpzRhOKI5g0MY" data-seed3_hash="04A66C2D9CA79AE3EDEAFA1A26D931FA83AB7AE62D5F03190624D17EB09F3734">
+                                    <div class="number">1</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI95M" data-dateutc="1708550180717" data-value="8" data-fullhash="E57BB91ED354D358DF4758B0395001C4BA37D4BA1ACE7DB4389BB09E3F6CE6F8" data-seed0_owner="server" data-seed0_value="qT2HefVZLV0CiMS7" data-seed0_hash="D8F570549112ABFA641F397820C15FEF03C8385CDE1CCDD7636F5C60F7BD18DF" data-seed1_owner="geovani matias benta" data-seed1_value="gJPGi9qgAuCAd0Bu" data-seed1_hash="21E9DAB157CFAE918793B444F29D868E00FA632BBE267BDDF03E9DFF56EF8711" data-seed2_owner="carlos andre viana lima" data-seed2_value="yu7FFtdY7LPFWWEP" data-seed2_hash="847B3EBD0E040B29257521CD110827610B19EBD0BA04709F0490A41E57D9F6B0" data-seed3_owner="douglas de souza freitas" data-seed3_value="RNNLkvdA0fg868EI" data-seed3_hash="8242D5746494232B62FE37DE2CAD03D0844E3E41779892AFD413B5D86A559601">
+                                    <div class="number">8</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI969" data-dateutc="1708550203874" data-value="2" data-fullhash="4C725C694BC6C3CB3EC423FA91C0D54D79B5704E9484F9B2FC4BCEFDDF7819D1" data-seed0_owner="server" data-seed0_value="JFbgHo6hq2E71SVZ" data-seed0_hash="490A018569E223EF5DA34F18DCF55A8302D9A04B8416AAC719DEB33B8440912F" data-seed1_owner="vagner da silva leal" data-seed1_value="G1ULTrw4H7tSCv0k" data-seed1_hash="28429DAE7C779736998F303EE36B1B3E69A5A52D180D0DDD50AA39231C15425F" data-seed2_owner="geovani matias benta" data-seed2_value="MINfMGcqcSekn3VZ" data-seed2_hash="4267B52859E18E673B35919D3E0E4A5646051191144C4ABD456C854EACF7360C" data-seed3_owner="carlos andre viana lima" data-seed3_value="Ttk14Fvi7TdjccwC" data-seed3_hash="75C33A32B841112F5A8686FFAE2820EA2F57261EC01428F9F4E37F02DE91E83F">
+                                    <div class="number">2</div>
+                                </span><span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI96X" data-dateutc="1708550227031" data-value="4" data-fullhash="2DE2F1C461B37640007BF4C7EA0939BCF726E7452D5AE7D3BDF90782C3504319" data-seed0_owner="server" data-seed0_value="CSB1l9jnJ7XpDHBs" data-seed0_hash="A306CC1C7CF11013FACA5D91FA314CA8D21A2C858C4924D4F8E6C24C7C86C735" data-seed1_owner="carlos andre viana lima" data-seed1_value="PDjdB0KnSrg4fNCU" data-seed1_hash="22EDCFF4C4716F7A61A00F7CC57C366D0759F872A59DE3AD2B8F543218228133" data-seed2_owner="geovani matias benta" data-seed2_value="43Vxa2PDr6w1g8fs" data-seed2_hash="A2DEC8956A7E7E3E378B8BCB67E37580C0719793476078CD17A5A56CCAE2B85D" data-seed3_owner="matheus bolduan" data-seed3_value="OLA0ndwuA9PtI8Ep" data-seed3_hash="309FC8C3FCDDA1EB74E313743BC84D561D2CDEA0D60FEFFDFD20063BD17FB9EC">
+                                    <div class="number">4</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI98O" data-dateutc="1708550250203" data-value="3" data-fullhash="3184DA07E2408DD598473CA4E57F9FD74D06D00DB73A6C1AA8FFA2A01F14A759" data-seed0_owner="server" data-seed0_value="i1kqxTniSaQStUBY" data-seed0_hash="2AA63D0693073F66158B0C821880E291CD89DFD346C43F1CF4B56BD0797201D6" data-seed1_owner="geovani matias benta" data-seed1_value="tAfvcHCxv5pJyvYv" data-seed1_hash="5E1E0CA34500FAE4DD6F89B4A46841CD873CEF5895BF41793A13E01709530413" data-seed2_owner="evelin de oliveira daniel" data-seed2_value="BSTMyMC3QixLZayi" data-seed2_hash="7C32911E831B27594B8BC618C6FEF5B13EA17896703DA9248E9AEB8287D2F62C" data-seed3_owner="carlos andre viana lima" data-seed3_value="GBSJ6cBearoLP72l" data-seed3_hash="2F1259C64DFA7D236EA04481058D1939626F385682CB7E23F9E6E785DE8F8AFE">
+                                    <div class="number">3</div>
+                                </span>
+                                <span class="white" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI99B" data-dateutc="1708550273361" data-value="0" data-fullhash="5BC75D8D6B20165DF7ECC2F6FB61E91475416FF463CF938AF80D7BD434C74911" data-seed0_owner="server" data-seed0_value="fZ6hCFZQrv2z7OiS" data-seed0_hash="3F12F2B75C48CF3525AA668566032AE642FD2A3E87BCC1022743719FE765902F" data-seed1_owner="carlos andre viana lima" data-seed1_value="AUiyOq9LRJ54ob7W" data-seed1_hash="512775DD5CFFDD124F81B65AF4186D908BDDBF65EA689D24D233292C22F4DD5A" data-seed2_owner="evelin de oliveira daniel" data-seed2_value="GSRiZvXIwCw92Zvt" data-seed2_hash="C3DE4F3F6987DFEACDB6746C9CDBC7D2444C9C677832BCC43E74A03937B55E0C" data-seed3_owner="geovani matias benta" data-seed3_value="wFL61kaZFPiFkkyb" data-seed3_hash="A1A0B5D0B4EF45029D29CCF6D413EC1B7C3888F7A78956CBC305E4FC978EF03B">
+                                    <div class="number">0</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI9B2" data-dateutc="1708550296517" data-value="5" data-fullhash="F10152C5EF03083D8F05701EA182F5162FAB6D1FA01F42FC63B753F05D7E0292" data-seed0_owner="server" data-seed0_value="JZPJdJce3DSrcOXq" data-seed0_hash="2711A9CF0F09C2E575415B0A11E635471BC926DFC4697220171F17C57B7D5D9F" data-seed1_owner="carlos andre viana lima" data-seed1_value="wWuHqpxDFpNATdON" data-seed1_hash="8CB1E0AFD9ECA3A2F343A73F25E5ACB73296E6AB6914BD69AA57AA85CD42CF45" data-seed2_owner="daniela freire dias" data-seed2_value="RzE67L4D6esSV1HA" data-seed2_hash="8D862969CF62CBD06F5655D542BA4619A9DD010480146A70AA7BDF82710871E4" data-seed3_owner="leandro leonardo teixeira junior" data-seed3_value="8he4MCqtMs7bbRio" data-seed3_hash="7398780A7D121F14DE47729164485FEF0FB9D7A373FAF5593171553FB4C29BA0">
+                                    <div class="number">5</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI9BP" data-dateutc="1708550319675" data-value="14" data-fullhash="2C1C1A555229F812CE1A619503E7873588938FE1585C7999F9E7F6374643C7E6" data-seed0_owner="server" data-seed0_value="lZtgp2rzSc2C6gjb" data-seed0_hash="BD918541EB686207BF36D1F01DE19A9BEBE8EE7985FCA0E0371E96AD4882C39D" data-seed1_owner="rafael oliveira simoes" data-seed1_value="qD9R5sjvF9waUq5i" data-seed1_hash="848001CF2313D117A42A0EE9B3AC57013302DC6242A8DE3559998957ACF220D9" data-seed2_owner="carlos andre viana lima" data-seed2_value="iFSRepG7NR7rL9f6" data-seed2_hash="70D8EB684BB112CD9AD2C49A2225EA03C3E50546AA41BF23D7F41116C44C8A71" data-seed3_owner="daniela freire dias" data-seed3_value="46xU1jNFrLsJSwAE" data-seed3_hash="3EADE306A393659984B259557588EA4AF3CFC7211F451BEDE1D4DDC54E0251D1">
+                                    <div class="number">14</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI9CC" data-dateutc="1708550342832" data-value="7" data-fullhash="ECE118E6D5F334E7241184CC947CE37A51745A1A6CB773D26389F088732E8CDE" data-seed0_owner="server" data-seed0_value="EFeWzifol2Zdn35p" data-seed0_hash="1FCDCD13556766FB7BE501B41ABBEC23FE6120372ADDC37EE247FE2B13FFDF5A" data-seed1_owner="vagner da silva leal" data-seed1_value="hCmjPB2peqrfcGLE" data-seed1_hash="B04337C33CDA134E5820971949DA2E898096B3CD89BE79D296F134005BC6A3D0" data-seed2_owner="carlos andre viana lima" data-seed2_value="6yqkFAthFRYfgzv0" data-seed2_hash="56A24E3AA9AFB825E589EA80A7BA7CC8F4461733E8DDE598B4996EAD75190B20" data-seed3_owner="rafael oliveira simoes" data-seed3_value="tMz1O8Sinb4q0aa2" data-seed3_hash="AAFA73C511730F5498FF641714B36E2DECC930B04EA21B757818B4ABD90672D7">
+                                    <div class="number">7</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI9E3" data-dateutc="1708550365989" data-value="9" data-fullhash="6D1337A3C5FFF4B38C21D2F168FFEDAF14DF0E809A1E8FAD028F7F7268C3115B" data-seed0_owner="server" data-seed0_value="KRkvKOg88Zw0VatB" data-seed0_hash="2AA3058D8962941C2F7147B5919A53F734A0794827F039BBB0CE85100B09A358" data-seed1_owner="carla vanessa cavalcante ferreira" data-seed1_value="8FJwiPECwLwdzkEz" data-seed1_hash="8440E907C76E2900DBEE2CC2E8AB6D2CB7AB2EC6D33683F2DC48747C1A4A31A7" data-seed2_owner="daniela freire dias" data-seed2_value="eMcA8tNKJ75eC8Ju" data-seed2_hash="3C6F0BA694DC8678A958DA263742DE31DE037DA9040265EC99D2858BA0D0039C" data-seed3_owner="evelin de oliveira daniel" data-seed3_value="u9U9aIb6xpAhDjW9" data-seed3_hash="050374220912E444F14B010FBC166666D0D81CF3DA16CF5E957B86D726518210">
+                                    <div class="number">9</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI9ER" data-dateutc="1708550389147" data-value="2" data-fullhash="6485B64B617FFBC77691F2AE752D0CE935C0623FCAAD0080D8824082E9F1D65F" data-seed0_owner="server" data-seed0_value="0ayzn21pGkUWOWVV" data-seed0_hash="09FE481D9E2B3646D971FC28AC2B427418A7E34433AF277C09B3DD2EBB81DFF4" data-seed1_owner="carla vanessa cavalcante ferreira" data-seed1_value="4K5m56FTsXS4a0il" data-seed1_hash="069033C0CAEC0B8593FE286A5122A6B91871E8204B700E09296834E7C7C49D97" data-seed2_owner="daniela freire dias" data-seed2_value="baTMaAAnkpUKkahJ" data-seed2_hash="509E35EB484CCF08504863D6A9715DAC82D39746AB584BD301C9C7C4B27FFBCC" data-seed3_owner="vagner da silva leal" data-seed3_value="Nwp27pq2N53oBlG4" data-seed3_hash="865AA4F4ED46383EBCD42D83C331934526C8716836BC2D3CA68C2D9768490435">
+                                    <div class="number">2</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI9GI" data-dateutc="1708550412304" data-value="10" data-fullhash="C21A4E085F50CD43A18AB751096A5BAE538C9DA70E69FFE64E1099ED0B560A0F" data-seed0_owner="server" data-seed0_value="kHtVzBUbZvyb1dEE" data-seed0_hash="131B2CF1F5F01747C880FF5E2CF9EB4C606726B765484BD7F4D44B326A4EAD62" data-seed1_owner="angelica araujo silveira" data-seed1_value="HIbISTPqFCNvBmM0" data-seed1_hash="4A2D8B9D4F1B34B8F781994323E7A23E248CF1F2F550F5917181F62A896E37A5" data-seed2_owner="rafael oliveira simoes" data-seed2_value="x9IuNaVnKLtu2UYm" data-seed2_hash="C01A51EB7C1F82A28676A1F7C3E7DC24EFDA9E261B080A76FCA76D70FEB61F63" data-seed3_owner="jhonny cesar sperandio cott" data-seed3_value="pfFYOEiA169i65TH" data-seed3_hash="D4AC8BD12A07E6CEED2DDA0274FDC0EB946F123344317CACFC1827361C194ED4">
+                                    <div class="number">10</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI9H5" data-dateutc="1708550435461" data-value="13" data-fullhash="CA428F7E6FF9120B59ABA389AD7C8E0872DD8AF11C87171E0802A0D3383F6913" data-seed0_owner="server" data-seed0_value="7QbfJ9kKfkwmj3pm" data-seed0_hash="5A71AF945D874C3E33F5CA9EB3950059DD7299F99B7294F61013C053A94AF514" data-seed1_owner="matheus bolduan" data-seed1_value="7eHuNc7FYv43HHm0" data-seed1_hash="E46702E3CAA5BDE3F8BE8C318AD932701ED9012B237CFC8373DB0CA8FDE84C7E" data-seed2_owner="daniela freire dias" data-seed2_value="79ym6U3q5fVL33nf" data-seed2_hash="9D58ABA52ABDD3ADF590BC578DD70A484414BF679399B62787CEBD2171B3CD7B" data-seed3_owner="rafael oliveira simoes" data-seed3_value="JXiSQAlOoLvan4mB" data-seed3_hash="BE2FAF12D3CA4101BD46C85BC03DB7328518A69E1CDA4FB8E373022F8CE2AB3C">
+                                    <div class="number">13</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI9HS" data-dateutc="1708550458618" data-value="2" data-fullhash="A390C072A6DCE706FCD915C7D5878952A75E8B83ECA50CE9F2661AB65326AE8A" data-seed0_owner="server" data-seed0_value="VDuBaFE1HRf7UoHS" data-seed0_hash="DA684D2FEDFE7C2B6985E4143613D27B2B49E128EAF53E55248114B95A22029C" data-seed1_owner="rafael oliveira simoes" data-seed1_value="IyTQftfWRBblnR4g" data-seed1_hash="84FE5BBE00BBB1718651E69C381B0C8B628150FACE31A37B24CB3C70C73023A1" data-seed2_owner="thalyta firmino sabino" data-seed2_value="n4LhAjM2AlGsNZxH" data-seed2_hash="8E84769FE6083F5495191AF4AB0B64C65D4844135285EDCB6BE786413E0971E5" data-seed3_owner="daniela freire dias" data-seed3_value="KNmCFzmEEmKVQBbZ" data-seed3_hash="7A739BB04A1A7DD24B82CE3FD5A57A46F515FB4A8C7386F800EBECD0972C8870">
+                                    <div class="number">2</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI9JJ" data-dateutc="1708550481790" data-value="5" data-fullhash="8EBF4073C8375D44A0218290D372CCFCDBC38F64435D3A15EA7949DD0033EABF" data-seed0_owner="server" data-seed0_value="sqtNyvFlPZULiLhO" data-seed0_hash="4BF6A4B18824CCA0086E80144D1F8D0175DCC72F62B22F546BCDFD6D9F5FE1C0" data-seed1_owner="daniela freire dias" data-seed1_value="HTlAPipljiQdbWHi" data-seed1_hash="469775E0ABF235DE012A5EE9C48C2DA04034F9A91273B022000843D97841D232" data-seed2_owner="evelin de oliveira daniel" data-seed2_value="zZ8uncLPGRmncJl8" data-seed2_hash="E450A990A50CDCFD7B904CC738D49400A84DCBC32C915D863D1DF510107C5D64" data-seed3_owner="rafael oliveira simoes" data-seed3_value="ryv6TJKnyL0O1DCa" data-seed3_hash="CF5DC05B495A4A9569E9A7A85E74AA7E440DEEFBAAD5146A8E7A9F274941D7F3">
+                                    <div class="number">5</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI9K6" data-dateutc="1708550504963" data-value="2" data-fullhash="017EEB83D74A13DEAC2E7F5C7405FF11802ECCCFCC6B5BECC51EEB4F7FFA54AE" data-seed0_owner="server" data-seed0_value="ewScb0g8Q30oasFp" data-seed0_hash="70076CB1E3885F2FF6DFE83E5DD161A4BAE70030798BE6E04A4B25A7C72240DC" data-seed1_owner="rafael da silva barbosa" data-seed1_value="PIZQ8E5CCX3YA3zW" data-seed1_hash="0BA116C61F571DE2EA766072DDA77FC80A808593E11C76707BD33040B62D5B51" data-seed2_owner="vagner da silva leal" data-seed2_value="csXJvUfDhDGruG40" data-seed2_hash="147AF513F07F2177422EA3B2B08BBE72BE1AB09B2EA6127516C2AC41C56243AD" data-seed3_owner="carlos andre viana lima" data-seed3_value="ig7wOmsIuUSa8FtE" data-seed3_hash="979D2184D39C79F28B04617F8BC2FC827AE7B751AA8A3134528049A4999DBF02">
+                                    <div class="number">2</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI9KU" data-dateutc="1708550528120" data-value="1" data-fullhash="98D830BE6E0ADA787C5FB0B86E64C37AE3C9D36A38D53D979BF99A1A09F94311" data-seed0_owner="server" data-seed0_value="ieCf8Uhlsvc19TP1" data-seed0_hash="4BA9B6CD68F9B4B68EDB133442DA42D1317BCFFD922565C4160D2466764BA16D" data-seed1_owner="carla vanessa cavalcante ferreira" data-seed1_value="JFEUBsuonX9Aibq8" data-seed1_hash="9A4E9A997B50992992E1A8D23DBBE2AE9F7F4FF26B80F40BB117DCD9953FFD8F" data-seed2_owner="carlos andre viana lima" data-seed2_value="P2n9vT7qS9qmI7zb" data-seed2_hash="E5FF3FB25C4E45931B0776E7A08C723A8CB3A2FDE9A0D69D04FA49F8DBD58411" data-seed3_owner="rafael da silva barbosa" data-seed3_value="POU7INSeOy9TTjdg" data-seed3_hash="988EEBA393C4ECC2718B960B679FF5CCBF282314E81D6D0738E4AFF55746F138">
+                                    <div class="number">1</div>
+                                </span>
+                                <span class="white" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI9ML" data-dateutc="1708550551293" data-value="0" data-fullhash="D70B60B4261D1DE7D34C275C87404DBF78C897E9408E06F14EB4DFCD9556DF66" data-seed0_owner="server" data-seed0_value="6LwOgo90FHpV6Sgl" data-seed0_hash="B68605EED2848F845A67B50A0CB0E6F2382E76ED31A0372F062AD1AFB36EBBAB" data-seed1_owner="carla vanessa cavalcante ferreira" data-seed1_value="xwbZDnXru8n0yK2z" data-seed1_hash="EC738D77A52CAB917800CFF96A3905FB7B86C7E5710136BA0B4753CCBF334536" data-seed2_owner="fabricio fernando andre soares rodrigues" data-seed2_value="fGgehnKPZhFtekDv" data-seed2_hash="19DF68D35298A9836F18189206A15F1577901AF25860A180EF52C0F3D150A295" data-seed3_owner="daniela freire dias" data-seed3_value="4vYSD4UziTgyJEwj" data-seed3_hash="06900CED3E88799E15B70D3647EDE06E65768369E00C3B10AD284A289FB6AE89">
+                                    <div class="number">0</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI9N8" data-dateutc="1708550574449" data-value="1" data-fullhash="B6E41563C025CBA346C1EC742C18345FA701B0155B8ABD3D0A2AF35E58EC0078" data-seed0_owner="server" data-seed0_value="MIWn2K0mGQw84FTf" data-seed0_hash="73FDDF5FDA6A49F98ABC1956D75626D4A3B183FA9BBAB63B5E0B4B48769D07CE" data-seed1_owner="douglas ribeiro de souza" data-seed1_value="tzqQbnbKYYeEmBt1" data-seed1_hash="B0870BBEF3EA90B2935BCA669CC8DF26D29F2F4F353556CF98F6849272BB7253" data-seed2_owner="jefferson carlos da silva nascimento" data-seed2_value="q36tknTXLJ7zh3zl" data-seed2_hash="B78FE44F82D0CB377F9436D566445E146FF75A868FA5BAC820359C64F94A0FB8" data-seed3_owner="daniela freire dias" data-seed3_value="mbDinkGapJTRICYD" data-seed3_hash="8D74BBD5794FFF0DA7709C31CD6FCA5548F33E32E04DB370704690CD2F3C8B6D">
+                                    <div class="number">1</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI9OZ" data-dateutc="1708550597606" data-value="7" data-fullhash="99ED06EDA89BCC40BE512BFA2136F37D40D8A70068DD79132A08F04792641B4A" data-seed0_owner="server" data-seed0_value="q2SPaTNu2dCFEzWx" data-seed0_hash="A1A340C57C68F037B83F4BFC0B1051215798FE755831CE352B22F88857BDDC2B" data-seed1_owner="gustavo de lima cardoso" data-seed1_value="vKlOJrMxZbPWqvDA" data-seed1_hash="22B9161403DE4F8A6EF121907219715129B7B03EDC5F6335796127C7BA3343D6" data-seed2_owner="leandro leonardo teixeira junior" data-seed2_value="MxWBc9Ke4GGDbxBD" data-seed2_hash="B4BF095AA68C9344921B582C09D7B9E6D262849D09D9C777D70231B591CE00C8" data-seed3_owner="daniela freire dias" data-seed3_value="5t9Q1kwBLNUii0Jc" data-seed3_hash="1C3E0D04E4299EA63E9E5F99B711250BFE544C33EAC6401D5F30C824CAA7857F">
+                                    <div class="number">7</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI9PM" data-dateutc="1708550620764" data-value="14" data-fullhash="96DAC5D8247538499A4044B68799BF0B3692F6CD13987C32E911EB60CCB9DBE5" data-seed0_owner="server" data-seed0_value="6cQbYIUV3jgxd7y6" data-seed0_hash="40BD709E16B9E0D1CD4F7E4190B48514B4D562A036D00348AA7631E43B6183F3" data-seed1_owner="daniela freire dias" data-seed1_value="398OlGnzhPw9gWUD" data-seed1_hash="83C1B7C75D58D434AB655AA8A4F354C9DA3C5B4FC281B2F65B77FBC50D0CDFA4" data-seed2_owner="carlos andre viana lima" data-seed2_value="SkYWBPYvefJM9VUh" data-seed2_hash="49F9821898C622C3DCC9E103CAB714A618E06A4F46F5E26137893FCD27DE94E9" data-seed3_owner="jefferson carlos da silva nascimento" data-seed3_value="82Fobe46HzsiKjXZ" data-seed3_hash="205660D9429E7DF691F822E833025182226EFD67896087B256A293F10CB677FC">
+                                    <div class="number">14</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI9Q9" data-dateutc="1708550643936" data-value="14" data-fullhash="56567127E99484619782689294CE30B922A2085AF49C87F9D3FCED4F7835CBBD" data-seed0_owner="server" data-seed0_value="iaC7nvDfF53SQEhv" data-seed0_hash="C232E8B55328567994670431772477184918859795468225E9E28528B7EE4C90" data-seed1_owner="vagner da silva leal" data-seed1_value="i52u9nYVM0RmSuMh" data-seed1_hash="9CA12C614C7E9F8CF1C45B4639C165D0943B6663021A4B97D75D8BAC058D7990" data-seed2_owner="geovani matias benta" data-seed2_value="4PCCoCBX6rTzfF76" data-seed2_hash="C6AAD8B52976E0236456D17F62A27E81394C7DB3ED621FD92A3A3C2728C6C750" data-seed3_owner="daniela freire dias" data-seed3_value="RQn2X76K1oUOKGCl" data-seed3_hash="EBA2463A1825785174AEE652156454561AB6CED20C0AB054104414B3C7E61BDA">
+                                    <div class="number">14</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI9S1" data-dateutc="1708550667343" data-value="1" data-fullhash="01D379661E1098AC241DF68EF06324F52746C035A311DF502DEFB3EE0E2C3F78" data-seed0_owner="server" data-seed0_value="MVEMU8FQeCbX9ZWu" data-seed0_hash="B0BD687D3714062D8C02FD6434502E20F6B21F753E81559699AC002094B0A455" data-seed1_owner="carlos andre viana lima" data-seed1_value="yAZBZMcXgQatPTRm" data-seed1_hash="1BCC18130E3504FB2F1B1ADB49499A8C06BAC02215C713C28B65C6E78721B0DF" data-seed2_owner="daniela freire dias" data-seed2_value="gr8ZNlTvsRzSNRMX" data-seed2_hash="8FD23FF7CFFB4D2DD2EACE025FAD463AB3052EF0878C91B8A033A9F73EAB867D" data-seed3_owner="vagner da silva leal" data-seed3_value="8zYQRKlUL7sDQfv0" data-seed3_hash="A49D605879A4E220ADCB413739986C149EB4EEBA47B09AD58FC0D4B28A16A8A0">
+                                    <div class="number">1</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI9SO" data-dateutc="1708550690500" data-value="2" data-fullhash="7282913467FD84AC096D7865228D220E23CD022B962391162AC9DE42E2B59482" data-seed0_owner="server" data-seed0_value="yzX0P87lHpfJoQEu" data-seed0_hash="92EE5AD706FCAD9D4C354B7F1408BE05B2EBBC9A2978678376BD34AAF252FF2A" data-seed1_owner="carlos andre viana lima" data-seed1_value="2gQa4dP4RXqBzaDM" data-seed1_hash="DC44E4326836CF3413C624EDFB5FC04D143BAF6E25468ECEEF73C5ECB50D55F6" data-seed2_owner="daniela freire dias" data-seed2_value="gF7dvFrJRpg8efh8" data-seed2_hash="86F4CE972EB4DD31E98272DD6E449333A78F6718513AA0974078CF63BE376DD1" data-seed3_owner="luiz fernando jose da silva" data-seed3_value="QPyl9PayUpKTKJvq" data-seed3_hash="076356D1D145886D842B748DB42BEEAEA66111A5023F620845BEF1204389BA30">
+                                    <div class="number">2</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI9UF" data-dateutc="1708550713657" data-value="9" data-fullhash="4203E673D800A2BE217F6EC58691F357245EF2819CA5F3F57C1198AEC84E1926" data-seed0_owner="server" data-seed0_value="RAKYmEdAlBEDfwhM" data-seed0_hash="F10C43F9A5BD7406544E84A6414EEEE3C37A12BE8FC923F2ACEF97B8A1B7DB7D" data-seed1_owner="carlos andre viana lima" data-seed1_value="f2OsP5LdEjH8FI0V" data-seed1_hash="A27DBDC2083A2E13CF9B47376928702B332AEA4CE09C1D2E7E740E5DACAD2F18" data-seed2_owner="vagner da silva leal" data-seed2_value="qzdIthM1YSZBpdYu" data-seed2_hash="4915BD63E6ED33E81018E2927D1745682C672E2B1E15538DB7D3C97996F6A130" data-seed3_owner="daniela freire dias" data-seed3_value="UqEVdyN0NeGxT9Hh" data-seed3_hash="824CFAAF7BF1A65F6B4DF3EB457AD996675A8923A8929402F55100617FE22995">
+                                    <div class="number">9</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI9V2" data-dateutc="1708550736814" data-value="12" data-fullhash="2B5AD92A98BD11A521226DE6F849BFB857AF3001A852A4E1948305745D90C064" data-seed0_owner="server" data-seed0_value="nEUtCCag5pRZMQFm" data-seed0_hash="1691BBD772FE737E5DA4128786C5A0D6A47BE320DFBA5F4ACB53C6A226EAA8F4" data-seed1_owner="pedro antonio porto pereira" data-seed1_value="Ach4Q5vyOKFQrk4O" data-seed1_hash="6A3205CE2E320E73B790164FD9B55D03CB5B31AD788D20BB4771C8EC7959C752" data-seed2_owner="carlos andre viana lima" data-seed2_value="k2aXnpQBRZlERsDR" data-seed2_hash="E40B6986F20BFD68731593C87FA1FEFC3682D068E2727362F5984C8BDBD43DD6" data-seed3_owner="daniela freire dias" data-seed3_value="RTOLNXNM9xNV5Y9h" data-seed3_hash="A6761A361B5AB43BB9E217F3B4C404EFDE400BD82028D9A4F64E4C020A16EE3E">
+                                    <div class="number">12</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI9VP" data-dateutc="1708550759971" data-value="13" data-fullhash="7A3CE555B4774E9A5548F4678525F3382E7896290416DBF5DADB558F57C4EF8B" data-seed0_owner="server" data-seed0_value="3PJQTkQ2ZjbxY87f" data-seed0_hash="5DE1C7460ABF80104BB0487E152AC331AE24C4055E35CD2BF4F7BA6D64C26D33" data-seed1_owner="pedro antonio porto pereira" data-seed1_value="FWQ4mzoPLKcUfgaz" data-seed1_hash="1737E0D26512121407CF4085FFD152053C33F9915FE26CDE4476D4EDB116D5D8" data-seed2_owner="mateus guimaraes correa" data-seed2_value="OEj8jgSoiDMW1uoS" data-seed2_hash="89109A41003550F25A80924CF0FACB11B7740762ED2C58C91D952FA719ADBC0F" data-seed3_owner="carlos andre viana lima" data-seed3_value="s5tT9YN8NZphyOzi" data-seed3_hash="006E5D97E135983B2E0C55B409BB8B5ED9781927F87A2539A72143D723CFC45A">
+                                    <div class="number">13</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI9XH" data-dateutc="1708550783128" data-value="5" data-fullhash="57CF3449BC1764E4DB0659113C6B907181521294B329FDA6099BE17F2C03FBDE" data-seed0_owner="server" data-seed0_value="tbV8Qg4ZsqPS3TB1" data-seed0_hash="2FDAF8E854B290BD8B80EA66988F7C2B0996B9AC55C6E722AABFE4E58ACFD7DE" data-seed1_owner="pedro antonio porto pereira" data-seed1_value="WKrFbFDjhdAl8Qg5" data-seed1_hash="5141EFF801BFCF645A9AB6A20FE55C72901B71B7C08606CFACAF959630D8EFEF" data-seed2_owner="ana julia benatti dos santos" data-seed2_value="FymtjJFzKhQteYZ2" data-seed2_hash="7AE28E541BC610670111300102F886C74DE74448CE6768223A30FA746AB47D94" data-seed3_owner="raphael melo dos santos" data-seed3_value="V7ZUSn3uwfjvvdSq" data-seed3_hash="60055B895AB3224BFC8BFD92EB6E9F1BBFFBA0171CB49E3CA24B28B7B26FEAE4">
+                                    <div class="number">5</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI9Y4" data-dateutc="1708550806316" data-value="7" data-fullhash="FDF0A0915727AE5C879976CB40D8EB152ADD2B17DE8FD2FA84BA6B3A67EC6D69" data-seed0_owner="server" data-seed0_value="CI8GPuYFH2WcZA3f" data-seed0_hash="662AAE0E4461692895EE67ED61B197899C747A03DB2D45D3F40C9259D2ADE4D3" data-seed1_owner="pedro antonio porto pereira" data-seed1_value="ff8s76ClFLHLv48w" data-seed1_hash="0EA6A157626E0D7802C93ABC1575ADCD73A0F2856F7BCE6E70A1C8EDC950AF3B" data-seed2_owner="evelin de oliveira daniel" data-seed2_value="vhCUMPUP3ipd2oZK" data-seed2_hash="5B44C845F98F45FC02A07B430C458A079B1876EE3F79BC3C59081867DA9F60F2" data-seed3_owner="vagner da silva leal" data-seed3_value="d4yOQpmVOHvGiN7i" data-seed3_hash="F38F1B7DAA92AE866DE2D4D2CC0E86D216C234F58E7AC4EABC2E0E0BDB218D76">
+                                    <div class="number">7</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTI9YR" data-dateutc="1708550829473" data-value="1" data-fullhash="35944ED299A6B2B8E156D5C5B0E4EDD7FD59374815F23692FD6011AAB415C9CF" data-seed0_owner="server" data-seed0_value="3PmTe3h5NjgT8b8G" data-seed0_hash="7536B9A657DFBF82A90FB3EC62785F469F8AC78977571AEF7A4291635501E67C" data-seed1_owner="claudimiro da hora pereira" data-seed1_value="aWAMsyBBKEAmjiW8" data-seed1_hash="C60229DE80BD002166EB692BC1473FD4701B6091FDB0E3E4954395389462B1CC" data-seed2_owner="ana julia benatti dos santos" data-seed2_value="ttfVjonW77EFNyAw" data-seed2_hash="06F312A35FD4AD62B8826115F502D0F0DD26919D76A4A932243C448D92067E20" data-seed3_owner="douglas de souza freitas" data-seed3_value="fyX0Cm5tmbHVdgnD" data-seed3_hash="6759744A14109E640BC231580051AB00FBE675A101F1F1999BB9D918DCA4184A">
+                                    <div class="number">1</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIA0I" data-dateutc="1708550852630" data-value="5" data-fullhash="DBC513CF9626318E3D17FAA7BC7C2ABB7D9EAE137F347966BEFA48C05CA23804" data-seed0_owner="server" data-seed0_value="LYavjYQLTj2knZ1j" data-seed0_hash="C8C1B2132837BB810A8363048ED6903012E208CCC8BE60A95AA338F53B28B8CC" data-seed1_owner="evelin de oliveira daniel" data-seed1_value="oRmVgWAW09RQVSXV" data-seed1_hash="A87EDD1B3F950C7060E1D499802244716F8F6549460EFAE123DB44D7E5C2898F" data-seed2_owner="claudimiro da hora pereira" data-seed2_value="GLj6zo6oxOAwVlqF" data-seed2_hash="D055073697C5CD024CCED98CA75AAFB9256762B983C5F6E6F2D74BE2D1C8BBAA" data-seed3_owner="marcus paulo brambila lopes" data-seed3_value="A1SLIkWQksDoXoqd" data-seed3_hash="CE9C9337C52EE95E833B0D0D5A09C3DB8EDE0DA62EA6B61A5200C19FCAA2669F">
+                                    <div class="number">5</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIA15" data-dateutc="1708550875787" data-value="6" data-fullhash="43F0A9BF92E592C46D4FE66E01EF88DB970AA1A7F1AF3B0BAD4C374F3B4C0017" data-seed0_owner="server" data-seed0_value="8mTqosyQb2KO9ojO" data-seed0_hash="717FBFEF76DCF21CFF73EDCFECEFA337A92024FC1E092B050EEAAC321FBCE42F" data-seed1_owner="carla vanessa cavalcante ferreira" data-seed1_value="4bPmvQ7tFx5HJZ8l" data-seed1_hash="C7ED6F3293FDCF2C27331B051D872CC7CF4A83024D1D39FFF9DE4CB913977993" data-seed2_owner="pedro antonio porto pereira" data-seed2_value="eAEpCbThG1GvRTRC" data-seed2_hash="6955A1FB1152A3A81E0C383449C8B23AE74D87F63B0C315ACE0ECE706896D5B8" data-seed3_owner="carlos andre viana lima" data-seed3_value="aPiDNFla8GdwpCFc" data-seed3_hash="CC802F1A2EDB45578DA92DC842E4BF0CC8C0ABF80DA1C28974CAD6928801F8FD">
+                                    <div class="number">6</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIA2W" data-dateutc="1708550898944" data-value="12" data-fullhash="BA9A8070D9D5C2D0EDDCC931F88639FED00AFAE159A1129D712830D2B3C06872" data-seed0_owner="server" data-seed0_value="WfbTr5Qpr7BVpR2M" data-seed0_hash="F0EC1AEE01F08C13984EA71801A3E67CF1C36541FACE6EF15E7A0D9708D42C18" data-seed1_owner="jefferson carlos da silva nascimento" data-seed1_value="P9tYuLkagBZyWEou" data-seed1_hash="0A2C557583D9A33BFB041998EB6765A6F7E3ED2486207120B8655126B722438C" data-seed2_owner="victor andrew morais de jesus" data-seed2_value="sFZqre1PWxWqEng1" data-seed2_hash="50258D4CBE70505EB98D5E4774ED433C12A180C084E00961E5AC6B30D4EA9486" data-seed3_owner="carlos andre viana lima" data-seed3_value="yV9WGjal4IveQ9h5" data-seed3_hash="DD3E7170892522D590D6ECA14B655B9A9844C632D29C92732F1AC72F3D20823E">
+                                    <div class="number">12</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIA3K" data-dateutc="1708550922147" data-value="12" data-fullhash="292392FDE712E7620F7ACC0EDADE364E57410CA38A31DD32AF17DF0FBA82413C" data-seed0_owner="server" data-seed0_value="tABT1vKflyIS2uD2" data-seed0_hash="740CCF94D8AD2158436305CF086EBE84611AAD25E8ACBA8A70E31016AB92400A" data-seed1_owner="carlos andre viana lima" data-seed1_value="Ma7A2nHWp4EOAKA4" data-seed1_hash="E0324B3797DC02D10CA93B4B4C94003E5E54253427F9EBD111BDCBF847F3548D" data-seed2_owner="daniela freire dias" data-seed2_value="ymaq2evdneun96sw" data-seed2_hash="1A698064F08D0FBBC315B1D58087F887A72733C4E47EE3A8B04A2B6A131DC6F4" data-seed3_owner="caique dias monteiro" data-seed3_value="MdEoJBLk7nkrvscp" data-seed3_hash="52953F246471F4402B48E47CBB72947FEA733A387E2AAE5F108826EC5EC7718B">
+                                    <div class="number">12</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIA47" data-dateutc="1708550945304" data-value="1" data-fullhash="B54C16E1EE7B1A13167BDAA1B38123976A116CF9C3462E92080E7F7CD8135F7F" data-seed0_owner="server" data-seed0_value="q2UMFRWekmJZTfMh" data-seed0_hash="20C1D482BB19BD6D137631E5CF7827A65BCBF0AD7B42ADDA57400B48AB15EE92" data-seed1_owner="carla vanessa cavalcante ferreira" data-seed1_value="vurgPjSTcz523Nb5" data-seed1_hash="97450844350CE606081A6CBB77CD980899113C6DD48AC5FA20823465A7557AD6" data-seed2_owner="caique dias monteiro" data-seed2_value="JxLE6nVzKWA4NzzJ" data-seed2_hash="C9F08FD1D4B3251D40200E75F2C7E340AF9FF1E8FE2CF08FA378E7411909766A" data-seed3_owner="luis carlos amorim chaves" data-seed3_value="W44g0BMnMIutX2bT" data-seed3_hash="7456FE045990D3C67881DBD05328762E3861875FC0630FA53616D6B126525502">
+                                    <div class="number">1</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIA5Y" data-dateutc="1708550968492" data-value="9" data-fullhash="AA50C1F74A464A2F402778AF1C03298FA7F013CB3A84EAA436F169A81400509C" data-seed0_owner="server" data-seed0_value="9Xd4KmRh26fEhbVq" data-seed0_hash="1C348D2B018FF6C039A00393451CB30109E7E7C8EAC0B8CC1F9934AA45A3D5B7" data-seed1_owner="carlos andre viana lima" data-seed1_value="DlchTTCEBnhPysol" data-seed1_hash="174583E5ED696B05D1EFC190791045EBCB50890842002C4BC449220C414266FF" data-seed2_owner="daniela freire dias" data-seed2_value="HQKHPPOWEbi4f00J" data-seed2_hash="6A0B6D155B266E69713BE57549F50FD0C6D4327B4C7B4E738615DB0834E0A8A4" data-seed3_owner="jhonny cesar sperandio cott" data-seed3_value="i416zSdAs8oxxrwz" data-seed3_hash="C309F2877B9E2DFFC3DF59F46D9282927FC8AE3CDAD66BB3C9DBCCCA125F082A">
+                                    <div class="number">9</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIA6L" data-dateutc="1708550991649" data-value="5" data-fullhash="B04E571B31DBA96704B6DAFAE08E8B1A81A4207E85A7EBCD344CA77D8D1BC099" data-seed0_owner="server" data-seed0_value="ApAqEv3ZndajTD4L" data-seed0_hash="55C189FF1EDECB8FAC66346135CB8EA8E6527AC6A0CE300E88DCABD7CB4D10A0" data-seed1_owner="daniela freire dias" data-seed1_value="kx0eZAohwbqfaqRF" data-seed1_hash="404F90549CF318307979F36A6A286D7E5EAA9637013CB1C1E8D6280A5E7BA934" data-seed2_owner="claudimiro da hora pereira" data-seed2_value="EvaoMcXVZqP7uTfu" data-seed2_hash="5EDCDC0E8BCA5EB184D4C833D78ADF67EA9A1CB997D5A4DAEC086EE313E1CF10" data-seed3_owner="marcus paulo brambila lopes" data-seed3_value="THKjBuKytQRvzPd0" data-seed3_hash="74E3F9EF1B8E84ABB2B4E9F0B1025EAE44D803BE820CF11E4236F769D0550941">
+                                    <div class="number">5</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIA8C" data-dateutc="1708551014806" data-value="5" data-fullhash="52D31118FA6BABC64FCF3F0106E3A97EB3AC1C68CB6F264DFBCC1E9FDAB4CBE3" data-seed0_owner="server" data-seed0_value="vwaZqAmdMHJvshda" data-seed0_hash="16C26A238D84C1DA8636AC877E825E9E06E6510609B8B47603DFA960BECCA65F" data-seed1_owner="carla vanessa cavalcante ferreira" data-seed1_value="euoiXznm67f2PIrv" data-seed1_hash="3872FA135E695D64A79076895398F705A55746CEEEE26B4A2731FE297B989723" data-seed2_owner="daniela freire dias" data-seed2_value="lYRsWNhKCr3cOSrN" data-seed2_hash="5B024F530F46E3D9E47AC598824781A7F5212B66B176B76D5FE3645AE89FC236" data-seed3_owner="carlos andre viana lima" data-seed3_value="vS3KFBOyEix0TpbR" data-seed3_hash="32B8DEF48BC93787122FB34D3010B60A957F19BE1CC886678DD026F57A78B8B5">
+                                    <div class="number">5</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIA8Z" data-dateutc="1708551037963" data-value="10" data-fullhash="CC2109728F7DEF13582A1BA0BBC4819E8F56B77A50FA3DEB7516F4840557D8C7" data-seed0_owner="server" data-seed0_value="YwK1HOb5PVTmFYPN" data-seed0_hash="E6389F6BC488EEFEA63ED407DE7ABA3EA0662C5E831D52D2FACAE09F3E371BA3" data-seed1_owner="carlos andre viana lima" data-seed1_value="orVZ09CvHdHNOHYB" data-seed1_hash="64F73C7A1380E6C970EB72A493D7A8E9229FE924F40AC3022D03A46B8450A240" data-seed2_owner="evelin de oliveira daniel" data-seed2_value="8hvy1ZPLrBzV2ql5" data-seed2_hash="3E84E0CD9B50042FD593116DD2A842162B6C7E6A5655D05B3DE3B47268EA2C93" data-seed3_owner="carla vanessa cavalcante ferreira" data-seed3_value="PvDvUDZ4ONBtea7n" data-seed3_hash="BB923EB3F3726484AFAC430CB547DA000C87AD93A81C0B16C2C681821F606E3E">
+                                    <div class="number">10</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIA9N" data-dateutc="1708551061120" data-value="4" data-fullhash="AD24FB1787882E68242DF5AD587C6A8DCD40B0DA1C8CA83B1F876CC84C1109D6" data-seed0_owner="server" data-seed0_value="bbFw7kHbM3lCUe43" data-seed0_hash="F50CD585F137FCA48615FF377DBC1611E2083498FA600387642E5CA0D8332E84" data-seed1_owner="carlos andre viana lima" data-seed1_value="Gp7iI1TOtVCROz7t" data-seed1_hash="2A47B4CB379836EBC301D80E6829F1531E96C8DC261E4B6AA1D11493770218BF" data-seed2_owner="carla vanessa cavalcante ferreira" data-seed2_value="XGzj2nO7A1yF2EJ9" data-seed2_hash="38717503E7A3891572246D8257F22423E56E0D6EF8BAE0BF461E942BAA785BCE" data-seed3_owner="evelin de oliveira daniel" data-seed3_value="2n31KfLYJBhWPkXC" data-seed3_hash="B40F5C57E2469DC278E9B4611397E19AA9FA2B74A67F9974746A602A2B3794B8">
+                                    <div class="number">4</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIABE" data-dateutc="1708551084277" data-value="3" data-fullhash="9AABEC632D23FEB2A1221F081C7C0D06778FA60C5C56E231C4CBBCD0B2BA1C1E" data-seed0_owner="server" data-seed0_value="SoqqvQ6zlbAuNRcE" data-seed0_hash="107DA1254E596A4392311576661E50DD7F7997966285801853C97FCD5499E566" data-seed1_owner="evelin de oliveira daniel" data-seed1_value="XB9Wy6no9gw3HMCM" data-seed1_hash="0602DF1AB964416A4AA6086507D4D01FEB862D79421F23D65AB3A4C1678BC0A9" data-seed2_owner="carlos andre viana lima" data-seed2_value="aHP1xdJ0ynn2DfH1" data-seed2_hash="641B3F4127938D16D60C16845D3FD6C7718A3F9C3C16CB9D62D2799C9E2A54B0">
+                                    <div class="number">3</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIAC1" data-dateutc="1708551107434" data-value="8" data-fullhash="07AC43399526E6CF14FE81C653D7B5DC76E8C98B7B187769EEA80EBD00E5EA12" data-seed0_owner="server" data-seed0_value="hNTGTAIp5g2WiNsZ" data-seed0_hash="1C5055638FE9912C018AA67D1C32CC9EC1EF300ACFF84220829991EC2D3C0197" data-seed1_owner="carlos andre viana lima" data-seed1_value="un7yG1fI6jlRtaK3" data-seed1_hash="9D33EB46E7756BE506D41CEF5A8AA333B29456DF7A786D38771443C58E1AFB89" data-seed2_owner="vagner da silva leal" data-seed2_value="6I352VksbvPe8LFw" data-seed2_hash="034A5FF81D481FFD5A14008F4F2A9BCD96DA3F91989DA00ED3CE50E8B5F6E3FD" data-seed3_owner="rodolfo antonio da silva" data-seed3_value="o8Dc48AqgZny8hLE" data-seed3_hash="85EF431229401C7DE6B719249D2BC1DBFC159EE726135C0E9092333860DA4CD5">
+                                    <div class="number">8</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIADS" data-dateutc="1708551130591" data-value="10" data-fullhash="D26519B299077807480BE5CC73A1479F8C30BA01864169997FBA9FA245BB3B76" data-seed0_owner="server" data-seed0_value="8xJV2rbhDb0bZNJW" data-seed0_hash="BC36346CC1D512CF5A130C7306AD70842BF5181B154B532F4E5529DE665D0C6E" data-seed1_owner="vagner da silva leal" data-seed1_value="FEmKQ0ZxosEZ4fdG" data-seed1_hash="24CAB2BCCE3591D183FCC00EC1A60C453DF63E981DCF59B085687D4EEDE545C9" data-seed2_owner="carlos andre viana lima" data-seed2_value="GE1uxmJ0DgCeSxFK" data-seed2_hash="3A075088E938E6FA0BE4D0B926F3F25F12C235497680C4E503FF7B559BBBA484">
+                                    <div class="number">10</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIAEF" data-dateutc="1708551153748" data-value="14" data-fullhash="49735BF8CFB9D975506C98775BC8AF98916CD41E5FA137C272DD55CFD7BF1386" data-seed0_owner="server" data-seed0_value="zODz06GmKmFLIgK3" data-seed0_hash="903ED63D85FEAC364F8D4D5845BF0F2D1DC108517F856C7AA3F7AFFAC30F2459" data-seed1_owner="carlos andre viana lima" data-seed1_value="ZzOSFhYt9dV37hSW" data-seed1_hash="69C1A7383C49D87CBF7963A0FAA343A3C567D6E0FA938DD883BBF939048F364D" data-seed2_owner="ana julia benatti dos santos" data-seed2_value="KNnQzj1nBXFHpJzV" data-seed2_hash="A22EFF3DFB693AFD74B7ACE42233D1747BBC2198467E056C90522F7B99004D4A" data-seed3_owner="luiz fernando jose da silva" data-seed3_value="VXH9WrdsZl3qdXC0" data-seed3_hash="08CC4B169B593CE7DF84FC32D356B6922D14D35453C51EFD8AE7DE7A30F3FDB7">
+                                    <div class="number">14</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIAF2" data-dateutc="1708551176905" data-value="14" data-fullhash="FB99471F909CEE5741C8DD5305D944FE112EB6ED28FB46FD1BA92B1FAFB5233E" data-seed0_owner="server" data-seed0_value="Y74JbUvz3NL9NTRX" data-seed0_hash="6EFDC1B4EBDA7D91CDC6F3AD346D739260825F3A164222416EE92B9FC063927E" data-seed1_owner="carlos andre viana lima" data-seed1_value="T6V1VtdAMtj3RALC" data-seed1_hash="1FEF1FF782992ABA26486759541BF1A8F323C7CF793A0F0F0CCE139C770CC0A8" data-seed2_owner="ana julia benatti dos santos" data-seed2_value="e04aS2tBjqAD9qKU" data-seed2_hash="D839C045B795FB143A0B58F4D7C4B8B687B3809576F2E099D78D27598CF5CC69" data-seed3_owner="fabricio ramos de miranda" data-seed3_value="E2HOBrljkl80lN0J" data-seed3_hash="807200C364E16C60045F51E46008C6F0F8A3A39EAA0256A3925EEC555D72F878">
+                                    <div class="number">14</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIAGU" data-dateutc="1708551200062" data-value="5" data-fullhash="50BA119A7400EA4C307629C4B76AE4A759ACED7E89BB5C176E1356A31CB0C88B" data-seed0_owner="server" data-seed0_value="jktJQs4rHCVzYs9V" data-seed0_hash="077A2710DCE98DD1FD78B99B93E411E7959A6BDF37F35FE00E11588408E9AFB6" data-seed1_owner="benilson da silva caldeira" data-seed1_value="EeK4Rax2ycgOae4b" data-seed1_hash="5D58BD6C5AB2736AE4A8132A45AF379763A9E183A393A7D65ED85C63E012A59A" data-seed2_owner="gustavo de lima cardoso" data-seed2_value="ULUXqQf2HKDUMDWv" data-seed2_hash="727CBE9370A12B4374601D2012A8575F16CAF1CA9547FF31455FB8723E503D95" data-seed3_owner="rhayssa da cruz regis de brito" data-seed3_value="UydMQ8IHkdHO0uen" data-seed3_hash="C5ABD1FB8773B9E99F976E6257D8D2950D362523F554AE0379E77648364C634D">
+                                    <div class="number">5</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIAHH" data-dateutc="1708551223219" data-value="3" data-fullhash="6021F6054F5F95755E768269508C6039F5FA880DCC067054F12A7C01A708DD8E" data-seed0_owner="server" data-seed0_value="LBuiv4zoMToCWTS8" data-seed0_hash="F40EE157BD8EBF362183243BBB197120EFBED602657C803A7E84E0E10BE087B8" data-seed1_owner="ana julia benatti dos santos" data-seed1_value="GmoAKXZou8duGtEQ" data-seed1_hash="A1A12B9269742B2D1D936488CDA2AE1A90D96468186467A4DB409D892A2CCBF0" data-seed2_owner="carlos andre viana lima" data-seed2_value="h2yFDTvnmy0DpBGd" data-seed2_hash="6C5A520289FA4B31FED4801DAAA14D4B032D5E7409D4216F407CF134AB92895E" data-seed3_owner="jose matheus ribeiro de freitas" data-seed3_value="Phb5sHWsap2CT4bF" data-seed3_hash="CC10BE91F9DA294D1EDB258FAA67D6854D4473B1634E356187D64280FDCCFC9F">
+                                    <div class="number">3</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIAI4" data-dateutc="1708551246375" data-value="14" data-fullhash="765CC6409C343424B1B0833CB14294CA49C5741257DA21CA6483BC7F34E0241D" data-seed0_owner="server" data-seed0_value="XHJ9bTMs6H0gXByj" data-seed0_hash="F79A9AE0E61379EF202F323DA146986F004C9328054012716AE3ACA192584B60" data-seed1_owner="carlos andre viana lima" data-seed1_value="eZdHvvqfUnmd7mAO" data-seed1_hash="D690BFF958B56421A74A5CD7AFD9B33DE3E4A88A324CCA45C3AD07A9E75A4D26" data-seed2_owner="bruno ferreira da silva nascimento" data-seed2_value="SFpkNM1EW4UbNWfh" data-seed2_hash="A51468C41AE8B0FFA407F7A5388F28A07C7682A2BBDF41E0A9C6DB35FB4F5BBD" data-seed3_owner="ana julia benatti dos santos" data-seed3_value="bvBqIlx5qEMFmVyX" data-seed3_hash="A4EC4E34BE4EDFE6F5AB60C8D6F942341816EFD603C53365B44C5FFFCBABF877">
+                                    <div class="number">14</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIAJV" data-dateutc="1708551269595" data-value="10" data-fullhash="CFF853F4C6B571E235E14B252B54836AC49EDDE71452E05F71D0F6D7BB36CAD4" data-seed0_owner="server" data-seed0_value="FVLj2kqccOmEFnzX" data-seed0_hash="428B9757D203165E2DCD6CEADCAE03E161A9F755058057A703EB67DC428DD996" data-seed1_owner="carlos andre viana lima" data-seed1_value="HYfBIOOY7eDrwEDv" data-seed1_hash="6CF53A6CEBE9706D0D83B530BE41AF7B1420D5AEC4F193DB88282FE3A6481B70" data-seed2_owner="lucas vinicius oliveira silva" data-seed2_value="T26p4oML8mjLZ3bd" data-seed2_hash="177C7659246300BA260022CB90C5CC6E53DCE1E9656311199534344370DE3C5D" data-seed3_owner="greice alaiane tavares" data-seed3_value="i7GXgiXcVdqIgwc0" data-seed3_hash="BED184EAFC3D808D570DE23D80FD77805C83AA63C88FF3FE6A952D0FDF111138">
+                                    <div class="number">10</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIAKI" data-dateutc="1708551292752" data-value="11" data-fullhash="E29C6964E225B463BA39C85D739BF375E5B0330ECB5C98AE2734F48576AF3FB9" data-seed0_owner="server" data-seed0_value="X5evEYcMJusNMagS" data-seed0_hash="FD83110C3C3B96AA7BA8BB584FCCA96E5C7C728A790B5E6F7D6996BD3DAB4A17" data-seed1_owner="carlos andre viana lima" data-seed1_value="APXCKFVySwNhXXIX" data-seed1_hash="C39F18D2856AC2DB627F5F038E6EB098567589053582B40021E04A6A42D84C1E" data-seed2_owner="vagner da silva leal" data-seed2_value="3Q6MN1to34yTpa1N" data-seed2_hash="49CBD8A334747342D15D2F6FBC625439024380C5CC0135BD54866290D0430A40" data-seed3_owner="ana julia benatti dos santos" data-seed3_value="AKL6c8ps13BjC4UI" data-seed3_hash="D64E51A6D8BE5A72F263417A4A567D1A75BD6F42608F26E7A0F0139D8FF7AAF2">
+                                    <div class="number">11</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIAM9" data-dateutc="1708551315909" data-value="13" data-fullhash="B22515FA0F023147BC39FA9BBECB52AF262BE7218FEC6802CE4E4AA4911D1B56" data-seed0_owner="server" data-seed0_value="sK58YPkkiQ8u5sIq" data-seed0_hash="4351B44E78FB37CB59A45F537A190D3B09C0C8A49E83746F985E5DD0E770AF84" data-seed1_owner="rhayssa da cruz regis de brito" data-seed1_value="3Rs3XrmTN1nOImOV" data-seed1_hash="F1F77F1D291473B0C9D876D9F37A7ABEE4E8DCA4EEB97FAEAD26AF0FB334AFB1" data-seed2_owner="ana julia benatti dos santos" data-seed2_value="4yYzMehbisVBx8uj" data-seed2_hash="FEDCACB55C3C55DAC2754444D81819662C2E7E38456CD5A15DB9C805B5F79662" data-seed3_owner="greice alaiane tavares" data-seed3_value="wK7hOtHTzZFrK5D2" data-seed3_hash="1520BD638E71DE98818B619E5C72AEC66095CDB6E42D1C67425CCE966CDCBF3D">
+                                    <div class="number">13</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIAMX" data-dateutc="1708551339082" data-value="9" data-fullhash="C96F727F8B2B25339DD6E15E3838344882CBAFEA4D2CF028A217E3BF3B4DD259" data-seed0_owner="server" data-seed0_value="B94YOQbINO6qIEuX" data-seed0_hash="A51627639E042EBE4480CC4E00A6CCBE6B5C0B7A8E2023369AA7C864B74F332F" data-seed1_owner="ana julia benatti dos santos" data-seed1_value="Mv5nxnlezpO1lp3j" data-seed1_hash="BE63D49701BA0E12B8E273435547324F9F268966464AA7112E239251A6511669" data-seed2_owner="matheus de queiroz ramos" data-seed2_value="QniVP2WWrCmkl8S8" data-seed2_hash="A04F23396DE93B60C4091EE4794DC7AE6E855C1C0FD17FA1EF0CE1BE5364DF2B" data-seed3_owner="luiz gustavo da silva bezerra" data-seed3_value="2OT9DgwqWD0m7TWO" data-seed3_hash="0D1D51FF3F4455CB36692E36E896CF9DA6ACEE06CAE417CF234C9AF4B99D2AA8">
+                                    <div class="number">9</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIANK" data-dateutc="1708551362238" data-value="14" data-fullhash="602C793D0A016A693764500E3D10C6784C6A3FF776DA4D5CD3EE847189BB8C14" data-seed0_owner="server" data-seed0_value="KdZjbp3nBVP2zqa0" data-seed0_hash="6BA3D7269F7AF775CF0AE7E1C0D294022D0C184DB624D7714C77939700CE1223" data-seed1_owner="bruno ferreira da silva nascimento" data-seed1_value="OUj96ugXfqwb8oM4" data-seed1_hash="7F862C2B46B9166744F9B416C30D90EE747FF280BB841ED3ABAB20BAE6162CA9" data-seed2_owner="matheus de queiroz ramos" data-seed2_value="HMWpLjKNOtU8WTTT" data-seed2_hash="A2F7614AFF2BD032F1BC8A212D3949456E7FEB862F6DC9AC0D05B6F2DE82E225" data-seed3_owner="joao felipe bento barroso" data-seed3_value="GobgH7JxXwsAaebK" data-seed3_hash="4F42E26DCF20737AF0FD3B9D0E305548B828D7349B441D300DC14C21DFB87BF7">
+                                    <div class="number">14</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIAPB" data-dateutc="1708551385395" data-value="14" data-fullhash="B49BA0EBD427668301AD4A668DEE3F87DEE17C2F4DD1F6B01393704E8047F859" data-seed0_owner="server" data-seed0_value="e5WsLyn9CuQJv8iU" data-seed0_hash="CFF4C6006BB896B108C5FF6C4FC9895CE4D657E969848A1C7564FC6E47A36C84" data-seed1_owner="ana julia benatti dos santos" data-seed1_value="7fALJowZSSar0zxL" data-seed1_hash="020D052967DD693A9C3C1C909DC246FC942E986403835030667FE9E7113D86FA" data-seed2_owner="matheus da silva mendes" data-seed2_value="hgSs7lRC0amdBNHp" data-seed2_hash="93E06595B756B23AEB3BD73A50758E160A6B43C07AF08984D871325BA038183F" data-seed3_owner="leandro da costa silva" data-seed3_value="W0hJMpwoVAoEQQrC" data-seed3_hash="4FA700306364D64D4B44AE2A110C09DDF4E9DD54E9FEA33E3EB8B4E118902990">
+                                    <div class="number">14</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIAPY" data-dateutc="1708551408552" data-value="10" data-fullhash="A5462863D7FE107285238DA0388BFB28091B9C613DC2D1A9C736F7992A3A5383" data-seed0_owner="server" data-seed0_value="a71f1wnuY9GDYSFv" data-seed0_hash="01A315C44DBE828CA1942612CEFF40C174A0F785F78F4F6322A64293C151337F" data-seed1_owner="demonstracao121y" data-seed1_value="de3t0lF9WQawrk2D" data-seed1_hash="6F17EAA648A87F6C48D4CF5341865482816CA523C385214471E2DDCB096DCCBC" data-seed2_owner="danillo mattos dos santos" data-seed2_value="vTj6w2uSpjWdGln0" data-seed2_hash="9DDE77F3DDC0949843857F09BC64E09E689665FAE2AF3AA7E29FC8B090BB3FA7" data-seed3_owner="carlos andre viana lima" data-seed3_value="96nn15mRYbCE2vH3" data-seed3_hash="298478BCAC0D9A457AC98085690DDA49A7DC43E9BC60449C60E562C3319EE73D">
+                                    <div class="number">10</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIARP" data-dateutc="1708551431709" data-value="5" data-fullhash="DE71F5814CDF5353F2B87C6F3976CEDD8CF22929A70119691BB44CF8F335E8C0" data-seed0_owner="server" data-seed0_value="FEsqDJIhXzBf3T4p" data-seed0_hash="EF933ED2B053CE630F6A51B436C898DB51119D7CD47854BDA4411623A2C108B0" data-seed1_owner="luiz gustavo da silva bezerra" data-seed1_value="NG0E5FPYsbQZRgzE" data-seed1_hash="DD19650A76D7FFAF468750EFF68FCBE152E74EA58AB2BB1A8621160E27F2A1C7" data-seed2_owner="carlos andre viana lima" data-seed2_value="Y2hKR3XIo4BwjR8T" data-seed2_hash="A28D979E14FD7EFA4A4EF20A0B47CE7DE930851ED97FCE27047BF0A0D174705E" data-seed3_owner="lucas vinicius oliveira silva" data-seed3_value="O6o1gra7OtC0dmwx" data-seed3_hash="C56B27C35EC553DF2DF64762CB346096CCFB3F2EB10287AA1114564A26A86715">
+                                    <div class="number">5</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIASC" data-dateutc="1708551454913" data-value="10" data-fullhash="C7FDBB776D5F93AC85FA73D30F65EB671442086D626D3DAE27F22DC046CCEDC3" data-seed0_owner="server" data-seed0_value="6bEwMYBccGqJrqbT" data-seed0_hash="6B7B6262F05F68B385159287B6605ABE765ADA6D8AD9D87FFB1289C84AEBEF53" data-seed1_owner="pontirelo prudente camargo" data-seed1_value="UbzsXU4FHzsDMSpv" data-seed1_hash="C3B407C1E38B3BBA55F7DA1BA5E4F25C08AEA1C976E4532CBA95F6BB485567BD" data-seed2_owner="carlos andre viana lima" data-seed2_value="SvAtu2HHmCnpynFD" data-seed2_hash="3428831085A7A25EB1529AC81C42883461EFFEC975733475A342B8CDB5D8F20E" data-seed3_owner="benilson da silva caldeira" data-seed3_value="0yEUP79vp9c67Nsg" data-seed3_hash="F3639A725BC3B654AA46528801C7D62FFF818F2701787A50A00A9DBCB792D3DF">
+                                    <div class="number">10</div>
+                                </span>
+                                <span class="white" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIAT0" data-dateutc="1708551478117" data-value="0" data-fullhash="D58CFF7C52EDCB16EB7977951C087DE1E6645C181E5010B257BACF2EEC26FC65" data-seed0_owner="server" data-seed0_value="mPkyOp9dHihZNNQu" data-seed0_hash="480B638F6040ED205C0FFE8ED78878F5C40DB0FAF70B94BA86D71DC1F1FCFDCC" data-seed1_owner="ana julia benatti dos santos" data-seed1_value="VzdDHgNIuPtl9jDF" data-seed1_hash="03CE2C14A8E9974B4A37446046E79FCAA7CE3CDA9D5D49023E9925ADCB54FEC7" data-seed2_owner="bruno pereira barreto" data-seed2_value="AbrvJwuBO5O5lM8q" data-seed2_hash="D5ADEA230D018A073495CCBFDF39A99DB7232CAB3669F46F5F1789A21B46D1FC" data-seed3_owner="carlos andre viana lima" data-seed3_value="n8C32IhAvnvuu76I" data-seed3_hash="F1F25A88FFEAE9B94B803364D33D460A2464F5CD066765F9379C5281E8CFD798">
+                                    <div class="number">0</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIAUR" data-dateutc="1708551501617" data-value="2" data-fullhash="F57312405ADEC3CF28B46EC01C81A3EAB25588F1170B58CBA77AE686A7DDE5F6" data-seed0_owner="server" data-seed0_value="uxf60SANsJj41c6c" data-seed0_hash="F1640D9B47826B46176178698CB14DF87EDAD96BB03CAE146FE6B3BA337C9768" data-seed1_owner="lucas vinicius oliveira silva" data-seed1_value="XIPiJVvnCrYddhkM" data-seed1_hash="7A8A6B21B7CAAF95449EF820CCA4434B272A33F5A57D37CC06D6E469F649A339" data-seed2_owner="leidimar santos reis" data-seed2_value="3W32dMwkhDI7CXeN" data-seed2_hash="A58B91F79E0578A75C7E33FFD1BDD95614252514C1112DC2BD91A5AB08F05AB4" data-seed3_owner="ana julia benatti dos santos" data-seed3_value="cVoTCYi0rWUzPYbE" data-seed3_hash="AFF8443A6A45D93A2CD30843CA1211764562B4ABB3043B0B37B6428F8355A743">
+                                    <div class="number">2</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIAVE" data-dateutc="1708551524774" data-value="8" data-fullhash="A4982073A817877FC80B03962F5476B0C544366131E024A8FE8A6E2461F1217A" data-seed0_owner="server" data-seed0_value="X2A3DxWp9QoYo25t" data-seed0_hash="D963B79377FD3EC83FE539FC0A2A6F2FE24A6F4209D22B4511A88751A8720704" data-seed1_owner="ana julia benatti dos santos" data-seed1_value="6kfmY8E59H8nxWpi" data-seed1_hash="856B6AF882794B16E55C2AC70AFA4013D733A0E9CBA1C80AAB3BB6C2207011CC" data-seed2_owner="jose matheus ribeiro de freitas" data-seed2_value="4XTRzQtaprZaVr1U" data-seed2_hash="078BEDC8A231DED7BFF7F22889CFC33D04CA6AD41BFB0BBC935DFDACA5F9975F" data-seed3_owner="lucio fernando gomes godoi" data-seed3_value="SqWmwz9ZfoXsPqOH" data-seed3_hash="EB5D1D60E600F07805C28D7FD33FF5F9423B9E4E10C8E9C3F7BD6C4A5C58EEC6">
+                                    <div class="number">8</div>
+                                </span>
+                                <span class="black" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIAW1" data-dateutc="1708551547931" data-value="8" data-fullhash="972C2D1FB697E4C60B89C393DCC30B4B97B45B84C72D0E1EE1D0E0030B021A67" data-seed0_owner="server" data-seed0_value="fGPygcbxPAH5FUPM" data-seed0_hash="2818489EB8E6879BD31C4A424A197C698AE1137729FE125B3D8815DF9E3220F3" data-seed1_owner="carlos andre viana lima" data-seed1_value="XpA3QEkKbXXk5e3K" data-seed1_hash="4D3A2F6B4721C5D3B2C1894E4313E84F634E031A6A450B3D9E9515C3B3201572" data-seed2_owner="lucas vinicius oliveira silva" data-seed2_value="DM1e6uLZmM0hSJpT" data-seed2_hash="A452D3E23E10C441640D7ED8DE589B8F2C25BBE1C8E38DBEBB139047F2BAD053" data-seed3_owner="jose matheus ribeiro de freitas" data-seed3_value="1BFUVonHE0cbktyV" data-seed3_hash="E1B92FFB489936395B5FD60CB0F33C95012D7B3626B0288EE86DDD68B0873B0C">
+                                    <div class="number">8</div>
+                                </span>
+                                <span class="red" onclick="Interface.Hot.View(this.dataset)" data-round_id="32CTIAXT" data-dateutc="1708551571354" data-value="2" data-fullhash="1608937E0B82738C024428E615A256FB34D9FB3AEBD2F858241765273915642A" data-seed0_owner="server" data-seed0_value="8LyffSUwhWaZb2wI" data-seed0_hash="744EF6B3157CED0C5F214C7B0CD2CD56BB5AC86A64DC8ABAF61FEFA41533B212" data-seed1_owner="leidimar santos reis" data-seed1_value="tB5ndhXRzX9vE1nx" data-seed1_hash="02ED5FCB5CA9AD8162AE5192850C1293D3CB3AB8DFE1A2CAAAD2E823BCC29C32" data-seed2_owner="carlos andre viana lima" data-seed2_value="TApjrMsCiuSuiUZd" data-seed2_hash="6B9E4B6963D3433EBC148138B88302AFAE2F6ABA0ECEF0421B50D82E01F7398F" data-seed3_owner="thiago soares fernandes" data-seed3_value="4H7hWhBPuNnWUDAZ" data-seed3_hash="2B85E5209D5FA71985513BDD5340C89FDE798F597857B1C3E55E8A17DA8B579E">
+                                    <div class="number">2</div>
+                                </span>
+                            </div>
+                            <span class="history" onclick="this.closest('hots').classList.toggle('expand')">⟳</span>
+                        </hots>
+                    </screen>
+                </board>
+                <stats class="form">
+                    <div class="flex">
+                        <div class="title">Estatísticas</div>
+                        <div class="wf"></div>
+                        <div class="button" style="float: right" onclick="Interface.ToggleStats()">X</div>
+                    </div>
+                    <table style="margin: auto">
+                        <tbody>
+                            <tr>
+                                <td style="position: relative">
+                                    <div class="marker"></div>
+                                </td>
+                                <td valign="bottom">
+                                    <div class="num white" data-num="0" style="height: 53.47px;"><img src="res/up.svg" class="arrow arrow_up"><img src="res/down.svg" class="arrow arrow_down"></div>
+                                </td>
+                                <td valign="bottom">
+                                    <div class="num red" data-num="1" style="height: 71.29px;"><img src="res/up.svg" class="arrow arrow_up"><img src="res/down.svg" class="arrow arrow_down">
+                                    </div>
+                                </td>
+                                <td valign="bottom">
+                                    <div class="num red" data-num="2" style="height: 106.93px;"><img src="res/up.svg" class="arrow arrow_up"><img src="res/down.svg" class="arrow arrow_down">
+                                    </div>
+                                </td>
+                                <td valign="bottom">
+                                    <div class="num red" data-num="3" style="height: 44.55px;"><img src="res/up.svg" class="arrow arrow_up"><img src="res/down.svg" class="arrow arrow_down">
+                                    </div>
+                                </td>
+                                <td valign="bottom">
+                                    <div class="num red" data-num="4" style="height: 44.55px;"><img src="res/up.svg" class="arrow arrow_up"><img src="res/down.svg" class="arrow arrow_down">
+                                    </div>
+                                </td>
+                                <td valign="bottom">
+                                    <div class="num red up" data-num="5" style="height: 98.02px;"><img src="res/up.svg" class="arrow arrow_up"><img src="res/down.svg" class="arrow arrow_down">
+                                    </div>
+                                </td>
+                                <td valign="bottom">
+                                    <div class="num red down" data-num="6" style="height: 17.82px;"><img src="res/up.svg" class="arrow arrow_up"><img src="res/down.svg" class="arrow arrow_down">
+                                    </div>
+                                </td>
+                                <td valign="bottom">
+                                    <div class="num red down" data-num="7" style="height: 44.55px;"><img src="res/up.svg" class="arrow arrow_up"><img src="res/down.svg" class="arrow arrow_down">
+                                    </div>
+                                </td>
+                                <td valign="bottom">
+                                    <div class="num black up" data-num="8" style="height: 62.38px;"><img src="res/up.svg" class="arrow arrow_up"><img src="res/down.svg" class="arrow arrow_down">
+                                    </div>
+                                </td>
+                                <td valign="bottom">
+                                    <div class="num black" data-num="9" style="height: 44.55px;"><img src="res/up.svg" class="arrow arrow_up"><img src="res/down.svg" class="arrow arrow_down">
+                                    </div>
+                                </td>
+                                <td valign="bottom">
+                                    <div class="num black up" data-num="10" style="height: 89.11px;"><img src="res/up.svg" class="arrow arrow_up"><img src="res/down.svg" class="arrow arrow_down">
+                                    </div>
+                                </td>
+                                <td valign="bottom">
+                                    <div class="num black" data-num="11" style="height: 17.82px;"><img src="res/up.svg" class="arrow arrow_up"><img src="res/down.svg" class="arrow arrow_down">
+                                    </div>
+                                </td>
+                                <td valign="bottom">
+                                    <div class="num black" data-num="12" style="height: 44.55px;"><img src="res/up.svg" class="arrow arrow_up"><img src="res/down.svg" class="arrow arrow_down">
+                                    </div>
+                                </td>
+                                <td valign="bottom">
+                                    <div class="num black" data-num="13" style="height: 44.55px;"><img src="res/up.svg" class="arrow arrow_up"><img src="res/down.svg" class="arrow arrow_down">
+                                    </div>
+                                </td>
+                                <td valign="bottom"
+                                ><div class="num black up" data-num="14" style="height: 115.84px;"><img src="res/up.svg" class="arrow arrow_up"><img src="res/down.svg" class="arrow arrow_down">
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>0</td>
+                            <td>1</td>
+                            <td>2</td>
+                            <td>3</td>
+                            <td>4</td>
+                            <td>5</td>
+                            <td>6</td>
+                            <td>7</td>
+                            <td>8</td>
+                            <td>9</td>
+                            <td>10</td>
+                            <td>11</td>
+                            <td>12</td>
+                            <td>13</td>
+                            <td>14</td>
+                        </tr>
+                        <tr>
+                            <td colspan="16">
+                                <div class="flex">
+                                    <div class="color red" style="flex: 0 0 47.52%;">
+                                        48%
+                                        <img src="res/down.svg" class="arrow arrow_down">
+                                    </div>
+                                    <div class="color white" style="flex: 0 0 5.94%;">
+                                        6%
+                                    </div>
+                                    <div class="color black" style="flex: 0 0 46.53%;">
+                                        47%
+                                        <img src="res/up.svg" class="arrow arrow_up">
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </stats>
+            <history class="form">
+                <div class="flex">
+                    <div class="title">Histórico</div>
+                    <div class="wf"></div>
+                    <div class="button" style="float: right" onclick="Interface.ToggleHistory()">X</div>
+                </div>
+                <div class="content"></div>
+            </history>
+            <lobby class="form">
+                <header>
+                    <selector>
+                        <item class="sel" onclick="Interface.Lobby.ShowLobby()">Apostas</item>
+                        <item onclick="Interface.Lobby.ShowDescription()">Sobre o Jogo</item>
+                        <item class="lobby_watchers">Assistindo: 30</item>
+                    </selector>
+                </header>
+                <div class="rooms gap content lobby">
+                    <div class="room room_red prized">
+                        <div class="title">
+                            <div>Vitória 2X</div>
+                            <div class="wf"></div>
+                            <div class="tag red"></div>
+                        </div>
+                        <div class="flex gap pad ">
+                            <div>Total apostas</div>
+                            <div class="wf"></div>
+                            <div class="total_players">+2</div>
+                            <div class="total_stake n b progressive">R$ 22.00</div>
+                        </div>
+                        <div class="players">
+                            <div class="player pad" data-stake="10">
+                                <div class="crown silver"></div>
+                                <div>rodo***ilva</div>
+                                <div class="wf"></div>
+                                <div class="n progressive">R$ 20.00</div>
+                            </div>
+                            <div class="player pad" data-stake="1">
+                                <div class="crown bronze"></div>
+                                <div>pont***argo</div>
+                                <div class="wf"></div>
+                                <div class="n progressive">R$ 2.00</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="room room_white lost">
+                        <div class="title"><div>Vitória 14X</div>
+                        <div class="wf"></div>
+                        <div class="tag white"></div>
+                    </div>
+                    <div class="flex gap pad ">
+                        <div>Total apostas</div>
+                        <div class="wf"></div>
+                        <div class="total_players">+5</div>
+                        <div class="total_stake n b progressive">R$ 106.50</div>
+                    </div>
+                    <div class="players">
+                        <div class="player pad" data-stake="52">
+                            <div class="crown gold"></div>
+                            <div>luca***ilva</div>
+                            <div class="wf"></div>
+                            <div class="n progressive">R$ 52.00</div>
+                        </div>
+                        <div class="player pad" data-stake="50">
+                            <div class="crown gold"></div>
+                            <div>vagn***leal</div>
+                            <div class="wf"></div>
+                            <div class="n progressive">R$ 50.00</div>
+                        </div>
+                        <div class="player pad" data-stake="2">
+                            <div class="crown bronze"></div>
+                            <div>carl***lima</div>
+                            <div class="wf"></div>
+                            <div class="n progressive">R$ 2.00</div>
+                        </div>
+                        <div class="player pad" data-stake="1.5">
+                            <div class="crown bronze"></div>
+                            <div>joao***agas</div>
+                            <div class="wf"></div>
+                            <div class="n progressive">R$ 1.50</div>
+                        </div>
+                        <div class="player pad" data-stake="1">
+                            <div class="crown bronze"></div>
+                            <div>leid***reis</div>
+                            <div class="wf"></div>
+                            <div class="n progressive">R$ 1.00</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="room room_black lost">
+                    <div class="title">
+                        <div>Vitória 2X</div>
+                        <div class="wf"></div>
+                        <div class="tag black"></div>
+                    </div>
+                    <div class="flex gap pad ">
+                        <div>Total apostas</div>
+                        <div class="wf"></div>
+                        <div class="total_players">+1</div>
+                        <div class="total_stake n b progressive">R$ 1.00</div>
+                    </div>
+                    <div class="players">
+                        <div class="player pad" data-stake="1">
+                            <div class="crown bronze"></div>
+                            <div>thia***ndes</div>
+                            <div class="wf"></div>
+                            <div class="n progressive">R$ 1.00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pad content description" style="display: none">
+                <div class="title">Dobrar</div>
+                <ul>
+                    <li>No jogo Dobrar, você vai tentar acertar se a roleta vai girar em Branco, Vermelho ou Preto</li>
+                    <li>Antes da rodada começar, você vai escolher o valor que você quer apostar, e também vai escolher a cor que você acha que vai cair</li>
+                    <li>Se você escolher o Vermelho ou o Preto, e acertar, você vai receber o dobro. No caso do branco, você recebe 14x</li>
+                    <li>Este jogo conta com a tecnologia Provably Fair, que garante que o resultado do jogo é escolhido em participação com os jogadores</li>
+                </ul>
+            </div>
+        </lobby>
+    </main>
+    <notices></notices>
+    <div class="modal_container" onclick="Solid.Lobby.HTML.Modal.CloseAll()"></div>
+</solid>
+<notices></notices>
+<modals onclick="Solid.HTML.Modal.CloseAll()">
+    <modal id="provably" class="full">
+        <header>
+            Verificação Provably Fair
+            <div class="x" onclick="Solid.HTML.Modal.CloseAll(); event.stopPropagation()">✖</div>
+        </header>
+        <main>
+            <table>
+                <tbody>
+                    <tr>
+                        <td colspan="2">RoundID</td>
+                        <td class="provably_round_id"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"><hr></td>
+                    </tr>
+                    <tr>
+                        <td rowspan="3"><img src="res/server.svg"></td>
+                        <td colspan="2">Semente do server <span class="provably_owner_server"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Semente</td>
+                        <td class="hash provably_seed_server">Oculta até conclusão</td>
+                    </tr>
+                    <tr>
+                        <td>SHA256</td>
+                        <td class="hash provably_hash_server"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"><hr></td>
+                    </tr>
+                    <tr>
+                        <td rowspan="3"><img src="res/player1.svg"></td>
+                        <td colspan="2">Semente do player1 <span class="provably_owner_player1"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Semente</td>
+                        <td class="hash provably_seed_player1">Oculta até conclusão</td>
+                    </tr>
+                    <tr>
+                        <td>SHA256</td>
+                        <td class="hash provably_hash_player1"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"><hr></td>
+                    </tr>
+                    <tr>
+                        <td rowspan="3"><img src="res/player2.svg"></td>
+                        <td colspan="2">Semente do player2 <span class="provably_owner_player2"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Semente</td>
+                        <td class="hash provably_seed_player2">Oculta até conclusão</td>
+                    </tr>
+                    <tr>
+                        <td>SHA256</td>
+                        <td class="hash provably_hash_player2"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"><hr></td>
+                    </tr>
+                    <tr>
+                        <td rowspan="3"><img src="res/player3.svg"></td>
+                        <td colspan="2">Semente do player3 <span class="provably_owner_player3"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Semente</td>
+                        <td class="hash provably_seed_player3">Oculta até conclusão</td>
+                    </tr>
+                    <tr>
+                        <td>SHA256</td>
+                        <td class="hash provably_hash_player3"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"><hr></td>
+                    </tr>
+                    <tr>
+                        <td rowspan="3"><img src="res/hash.svg"></td>
+                        <td colspan="2">Hash da combinação das sementes</td>
+                    </tr>
+                    <tr>
+                        <td class="hash provably_hash_combined" colspan="2">Oculta até conclusão</td>
+                    </tr>
+                </tbody>
+            </table>
+        </main>
+        <footer>
+            <a class="button">Fechar</a>
+        </footer>
+    </modal>
+</modals>
+    
+ 
+    </body>
+</html>
